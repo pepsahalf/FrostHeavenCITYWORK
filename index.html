@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Заявка во Фростхевен</title>
+<style>
+:root {
+  --bg-1: #03070d;
+  --bg-2: #09111a;
+  --bg-3: #0f1c29;
+  --glass: rgba(16, 27, 40, 0.58);
+  --glass-strong: rgba(10, 18, 28, 0.8);
+  --line: rgba(181, 220, 255, 0.14);
+  --line-strong: rgba(181, 220, 255, 0.24);
+  --text: #eef7ff;
+  --muted: #9fb7cb;
+  --soft: #7192ac;
+  --accent: #b5ebff;
+  --accent-2: #69beff;
+  --ok: #7cf0ba;
+  --err: #ff9d9d;
+  --shadow: 0 25px 60px rgba(0, 0, 0, 0.42);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(181, 235, 255, 0.14), transparent 32%),
+    radial-gradient(circle at 15% 20%, rgba(105, 190, 255, 0.08), transparent 24%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.025), transparent 20%),
+    radial-gradient(circle at 50% 120%, rgba(181, 235, 255, 0.08), transparent 30%);
+  z-index: 0;
+}
+
+.snow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.snow span {
+  position: absolute;
+  top: -20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 10px rgba(255,255,255,0.45);
+  animation: snowfall linear infinite;
+}
+
+@keyframes snowfall {
+  0% {
+    transform: translate3d(0, -20px, 0) scale(0.75);
+    opacity: 0;
+  }
+  12% { opacity: 0.95; }
+  100% {
+    transform: translate3d(-60px, 110vh, 0) scale(1);
+    opacity: 0;
+  }
+}
+
+.shell {
+  position: relative;
+  z-index: 2;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 22px;
+}
+
+.glass {
+  background: linear-gradient(180deg, rgba(22, 36, 52, 0.72), rgba(11, 20, 31, 0.84));
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.hero {
+  min-height: calc(100vh - 44px);
+  display: grid;
+  align-items: center;
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px;
+  padding: 44px;
+}
+
+.hero-card::before {
+  content: "";
+  position: absolute;
+  right: -120px;
+  top: -120px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(181, 235, 255, 0.18), transparent 66%);
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  left: -80px;
+  bottom: -100px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(105, 190, 255, 0.16), transparent 68%);
+}
+
+.kicker {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.04);
+  color: #d9ecfb;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.kicker::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 14px rgba(181, 235, 255, 0.8);
+}
+
+.hero-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(42px, 7vw, 76px);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+  max-width: 760px;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  margin-top: 18px;
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.hero-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.btn {
+  border: 0;
+  cursor: pointer;
+  padding: 15px 20px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.btn:hover { transform: translateY(-1px); }
+
+.btn-primary {
+  color: #03111b;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 14px 30px rgba(105, 190, 255, 0.25);
+}
+
+.btn-secondary {
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--line);
+}
+
+.app-section {
+  display: none;
+  padding-bottom: 28px;
+}
+
+.app-section.active { display: block; }
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.045);
+  color: #dceeff;
+  font-size: 13px;
+}
+
+.panel {
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 28px 30px 0;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+
+.panel-sub {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 760px;
+}
+
+.panel-body {
+  padding: 24px 30px 30px;
+}
+
+form {
+  display: grid;
+  gap: 18px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.label-row label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--soft);
+}
+
+input, textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(5, 12, 18, 0.5);
+  color: var(--text);
+  padding: 14px 15px;
+  border-radius: 16px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease;
+}
+
+input::placeholder, textarea::placeholder { color: #7490a8; }
+
+input:focus, textarea:focus {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 4px rgba(181, 235, 255, 0.1), 0 0 14px rgba(105, 190, 255, 0.18);
+  background: rgba(9, 16, 24, 0.7);
+  transform: translateY(-1px);
+}
+
+textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.group {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+}
+
+.group-title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.group-sub {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid transparent;
+  color: var(--text);
+  transition: .18s ease;
+  cursor: pointer;
+}
+
+.option + .option { margin-top: 10px; }
+
+.option:hover {
+  border-color: rgba(181, 220, 255, 0.12);
+  background: rgba(255,255,255,0.055);
+  transform: translateY(-1px);
+}
+
+.option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent-2);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status, .saved {
+  display: none;
+  padding: 14px 15px;
+  border-radius: 16px;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.status.ok, .saved {
+  display: block;
+  background: rgba(124, 240, 186, 0.08);
+  border: 1px solid rgba(124, 240, 186, 0.2);
+}
+
+.status.err {
+  display: block;
+  background: rgba(255, 157, 157, 0.08);
+  border: 1px solid rgba(255, 157, 157, 0.2);
+}
+
+@media (max-width: 980px) {
+  .choices { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .shell { padding: 12px; }
+  .hero-card, .panel-head, .panel-body { padding-left: 18px; padding-right: 18px; }
+  .hero-card { padding-top: 28px; padding-bottom: 28px; }
+  .grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 42px; }
+  .topbar { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="snow" id="snow"></div>
+
+<section class="shell hero" id="menuSection">
+  <div class="hero-card glass">
+    <div class="kicker">Ворота Фростхевена</div>
+    <h1 class="hero-title">Вход во Фростхевен</h1>
+    <p class="hero-copy">
+      Перед подачей заявки кандидат проходит через главный пункт доступа. Здесь начинается путь во Фростхевен:
+      роли, обязанности, контакт и готовность работать на благо поселения. После входа откроется сама анкета.
+    </p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" id="openApplicationBtn" type="button">Перейти к заявке</button>
+      <button class="btn btn-secondary" id="backInfoBtn" type="button">Открыть форму</button>
+    </div>
+  </div>
+</section>
+
+<section class="shell app-section" id="applicationSection">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-badge">Анкета открыта</div>
+      <div class="topbar-badge">Фростхевен</div>
+    </div>
+    <button class="btn btn-secondary" type="button" id="backToMenuBtn">Назад в меню</button>
+  </div>
+
+  <div class="panel glass">
+    <div class="panel-head">
+      <h2 class="panel-title">Заявка на вступление</h2>
+      <p class="panel-sub">Заполни анкету, выбери работу, укажи дополнительную роль, время для Фростхевена и контакт для связи.</p>
+    </div>
+
+    <div class="panel-body">
+      <form id="form">
+        <div class="grid">
+          <div class="field">
+            <div class="label-row">
+              <label for="nickname">Ник</label>
+              <span class="hint">обязательно</span>
+            </div>
+            <input id="nickname" placeholder="Например: ShadowFox" required>
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="date">Дата входа на СПК</label>
+              <span class="hint">обязательно</span>
+            </div>
+            <input type="date" id="date" required>
+          </div>
+        </div>
+
+        <div class="choices">
+          <div class="group">
+            <h3 class="group-title">Основная работа</h3>
+            <p class="group-sub">Выбери одну основную роль, в которой хочешь приносить Фростхевену максимум пользы.</p>
+            <label class="option"><input type="radio" name="job" value="Инженер-Create"> Инженер-Create</label>
+            <label class="option"><input type="radio" name="job" value="Добытчик ресурсов"> Добытчик ресурсов</label>
+            <label class="option"><input type="radio" name="job" value="Строитель"> Строитель</label>
+            <label class="option"><input type="radio" name="job" value="Архитектор"> Архитектор</label>
+          </div>
+
+          <div class="group">
+            <h3 class="group-title">Дополнительная работа</h3>
+            <p class="group-sub">Можно выбрать несколько дополнительных задач для жизни поселения.</p>
+            <label class="option"><input type="checkbox" name="extraJob" value="Гид"> Гид</label>
+            <label class="option"><input type="checkbox" name="extraJob" value="Системный адмэн"> Системный адмэн</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="time">Сколько готов уделять Фростхевену</label>
+            <span class="hint">например: 2–4 часа в день</span>
+          </div>
+          <input id="time" placeholder="Например: 2–4 часа в день" required>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="contact">Discord или Telegram</label>
+            <span class="hint">для обратной связи</span>
+          </div>
+          <input id="contact" placeholder="@username или name#1234" required>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="about">Почему хочешь во Фростхевен</label>
+            <span class="hint">пара предложений</span>
+          </div>
+          <textarea id="about" placeholder="Напиши коротко о себе и чем хочешь быть полезен" required></textarea>
+        </div>
+
+        <div id="status" class="status"></div>
+        <div id="saved" class="saved"></div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Отправить заявку</button>
+          <button class="btn btn-secondary" type="button" id="clear">Очистить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+const BOT_TOKEN = '8257331682:AAEIbCrRpa_pAGC-RD9sMjDtb3INjxCTcIA';
+const CHAT_ID = '1414196317';
+const STORAGE_KEY = 'frosthaven_application';
+
+const snow = document.getElementById('snow');
+for (let i = 0; i < 95; i++) {
+  const flake = document.createElement('span');
+  const size = 3 + Math.random() * 6;
+  flake.style.left = Math.random() * 100 + '%';
+  flake.style.width = size + 'px';
+  flake.style.height = size + 'px';
+  flake.style.opacity = 0.35 + Math.random() * 0.65;
+  flake.style.animationDuration = 4 + Math.random() * 8 + 's';
+  flake.style.animationDelay = Math.random() * 8 + 's';
+  snow.appendChild(flake);
+}
+
+const menuSection = document.getElementById('menuSection');
+const applicationSection = document.getElementById('applicationSection');
+const openApplicationBtn = document.getElementById('openApplicationBtn');
+const backInfoBtn = document.getElementById('backInfoBtn');
+const backToMenuBtn = document.getElementById('backToMenuBtn');
+const form = document.getElementById('form');
+const status = document.getElementById('status');
+const saved = document.getElementById('saved');
+const clearBtn = document.getElementById('clear');
+
+function openApplication() {
+  applicationSection.classList.add('active');
+  applicationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function backToMenu() {
+  applicationSection.classList.remove('active');
+  menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+openApplicationBtn.addEventListener('click', openApplication);
+backInfoBtn.addEventListener('click', openApplication);
+backToMenuBtn.addEventListener('click', backToMenu);
+
+function showSaved(data) {
+  saved.style.display = 'block';
+  saved.textContent = [
+    'Последняя заявка:',
+    `Ник: ${data.nickname}`,
+    `Дата СПК: ${data.date}`,
+    `Работа: ${data.job || 'Не выбрано'}`,
+    `Доп. работа: ${data.extraJobs.length ? data.extraJobs.join(', ') : 'Нет'}`,
+    `Время: ${data.time}`,
+    `Контакт: ${data.contact}`,
+    `Почему: ${data.about}`
+  ].join('\n');
+}
+
+function fillForm(data) {
+  nickname.value = data.nickname || '';
+  date.value = data.date || '';
+  time.value = data.time || '';
+  contact.value = data.contact || '';
+  about.value = data.about || '';
+  document.querySelectorAll('[name="job"]').forEach(el => el.checked = el.value === data.job);
+  document.querySelectorAll('[name="extraJob"]').forEach(el => el.checked = (data.extraJobs || []).includes(el.value));
+}
+
+form.onsubmit = async (e) => {
+  e.preventDefault();
+
+  const data = {
+    nickname: nickname.value.trim(),
+    date: date.value,
+    job: document.querySelector('[name="job"]:checked')?.value || '',
+    extraJobs: [...document.querySelectorAll('[name="extraJob"]:checked')].map(el => el.value),
+    time: time.value.trim(),
+    contact: contact.value.trim(),
+    about: about.value.trim()
+  };
+
+  if (!data.job) {
+    status.className = 'status err';
+    status.textContent = 'Выбери основную работу.';
+    return;
+  }
+
+  if (!BOT_TOKEN || BOT_TOKEN === 'PASTE_NEW_BOT_TOKEN_HERE') {
+    status.className = 'status err';
+    status.textContent = 'Сначала вставь новый BOT_TOKEN в код.';
+    return;
+  }
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  showSaved(data);
+
+  status.className = 'status ok';
+  status.textContent = 'Заявка сохранена. Отправка в Telegram...';
+
+  const text = [
+    '❄️ Новая заявка во Фростхевен',
+    '',
+    `Ник: ${data.nickname}`,
+    `Дата входа на СПК: ${data.date}`,
+    `Основная работа: ${data.job}`,
+    `Доп. работа: ${data.extraJobs.length ? data.extraJobs.join(', ') : 'Нет'}`,
+    `Сколько готов уделять: ${data.time}`,
+    `Контакт: ${data.contact}`,
+    '',
+    'Почему хочет вступить:',
+    `${data.about}`
+  ].join('\n');
+
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: CHAT_ID, text })
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.ok) {
+      throw new Error(result.description || 'Ошибка Telegram API');
+    }
+
+    status.className = 'status ok';
+    status.textContent = 'Заявка отправлена в Telegram.';
+  } catch (error) {
+    status.className = 'status err';
+    status.textContent = 'Ошибка отправки: ' + error.message;
+  }
+};
+
+clearBtn.onclick = () => {
+  form.reset();
+  localStorage.removeItem(STORAGE_KEY);
+  saved.style.display = 'none';
+  saved.textContent = '';
+  status.className = 'status';
+  status.textContent = '';
+};
+
+const savedData = localStorage.getItem(STORAGE_KEY);
+if (savedData) {
+  try {
+    const parsed = JSON.parse(savedData);
+    fillForm(parsed);
+    showSaved(parsed);
+    applicationSection.classList.add('active');
+  } catch (e) {
+    console.error(e);
+  }
+}
+</script>
+</body>
+</html>
