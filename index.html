@@ -10,6 +10,7 @@
       --bg-2: #08111a;
       --bg-3: #0f1c29;
       --card: rgba(12, 20, 31, 0.72);
+      --card-strong: rgba(12, 20, 31, 0.9);
       --line: rgba(189, 225, 255, 0.14);
       --line-strong: rgba(189, 225, 255, 0.24);
       --text: #edf7ff;
@@ -17,6 +18,7 @@
       --soft: #6f89a0;
       --accent: #b8ecff;
       --accent-2: #6bc1ff;
+      --accent-3: #dff7ff;
       --ok-bg: rgba(124, 240, 186, 0.08);
       --ok-line: rgba(124, 240, 186, 0.24);
       --err-bg: rgba(255, 157, 157, 0.08);
@@ -475,19 +477,6 @@
           </div>
         </div>
 
-        <div class="hero-side">
-          <div class="hero-chip">
-            <strong>Формат</strong>
-            <span>Стартовое меню, снежный эффект и плавный переход к анкете.</span>
-          </div>
-          <div class="hero-chip">
-            <strong>Надёжность</strong>
-            <span>Заявка отправляется через серверный обработчик и доходит стабильнее, чем прямой запрос из браузера.</span>
-          </div>
-          <div class="hero-chip">
-            <strong>Стиль</strong>
-            <span>Холодный интерфейс с чистой композицией без лишней перегрузки.</span>
-          </div>
         </div>
       </div>
     </div>
@@ -510,6 +499,7 @@
 
       <div class="panel-body">
         <form id="form">
+          <input type="text" id="website" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" />
           <div class="grid-2">
             <div class="field">
               <div class="label-row">
@@ -573,7 +563,7 @@
           <div id="saved" class="saved"></div>
 
           <div class="actions">
-            <button class="button button-primary" type="submit">Отправить заявку</button>
+            <button class="button button-primary" type="submit" id="submitBtn">Отправить заявку</button>
             <button class="button button-secondary" type="button" id="clearBtn">Очистить</button>
           </div>
         </form>
@@ -584,6 +574,10 @@
   <script>
     const WEBHOOK_URL = 'https://frost-heaven-citywork.vercel.app/api/send-to-telegram';
     const STORAGE_KEY = 'frosthaven_application_v2';
+    const FORM_STARTED_AT_KEY = 'frosthaven_form_started_at';
+    const LAST_SUBMIT_AT_KEY = 'frosthaven_last_submit_at';
+    const SUBMIT_COOLDOWN_MS = 60 * 1000;
+    const MIN_FILL_TIME_MS = 4000;
 
     const snow = document.getElementById('snow');
     for (let i = 0; i < 100; i++) {
@@ -607,6 +601,8 @@
     const status = document.getElementById('status');
     const saved = document.getElementById('saved');
     const clearBtn = document.getElementById('clearBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const websiteField = document.getElementById('website');
 
     function openApplication() {
       applicationSection.classList.add('active');
@@ -621,6 +617,26 @@
     openApplicationBtn.addEventListener('click', openApplication);
     openApplicationBtn2.addEventListener('click', openApplication);
     backToMenuBtn.addEventListener('click', backToMenu);
+
+    function updateCooldownState() {
+      const lastSubmitAt = Number(localStorage.getItem(LAST_SUBMIT_AT_KEY) || 0);
+      const now = Date.now();
+      const diff = now - lastSubmitAt;
+      const waitMs = SUBMIT_COOLDOWN_MS - diff;
+
+      if (waitMs > 0) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = `Подожди ${Math.ceil(waitMs / 1000)} сек`;
+        return waitMs;
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Отправить заявку';
+      return 0;
+    }
+
+    setInterval(updateCooldownState, 1000);
+    updateCooldownState();
 
     function showSaved(data) {
       saved.style.display = 'block';
@@ -671,6 +687,27 @@
         return;
       }
 
+      if (websiteField.value.trim() !== '') {
+        status.className = 'status err';
+        status.textContent = 'Отправка отклонена.';
+        return;
+      }
+
+      const startedAt = Number(localStorage.getItem(FORM_STARTED_AT_KEY) || Date.now());
+      const fillTime = Date.now() - startedAt;
+      if (fillTime < MIN_FILL_TIME_MS) {
+        status.className = 'status err';
+        status.textContent = 'Форма заполнена слишком быстро. Попробуй ещё раз через пару секунд.';
+        return;
+      }
+
+      const waitMs = updateCooldownState();
+      if (waitMs > 0) {
+        status.className = 'status err';
+        status.textContent = `Слишком частая отправка. Подожди ${Math.ceil(waitMs / 1000)} сек.`;
+        return;
+      }
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       showSaved(data);
 
@@ -690,6 +727,10 @@
           throw new Error(result.message || 'Ошибка сервера');
         }
 
+        localStorage.setItem(LAST_SUBMIT_AT_KEY, String(Date.now()));
+        localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+        updateCooldownState();
+
         status.className = 'status ok';
         status.textContent = 'Заявка отправлена.';
       } catch (error) {
@@ -705,7 +746,24 @@
       saved.textContent = '';
       status.className = 'status';
       status.textContent = '';
+      localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+      updateCooldownState();
     };
+
+    if (!localStorage.getItem(FORM_STARTED_AT_KEY)) {
+      localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+    }
+
+    ['nickname', 'date', 'time', 'contact', 'about'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          if (!localStorage.getItem(FORM_STARTED_AT_KEY)) {
+            localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+          }
+        });
+      }
+    });
 
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
