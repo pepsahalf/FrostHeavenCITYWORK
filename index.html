@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Фростхевен — Заявка</title>
+  <style>
+    :root {
+      --bg-1: #03070d;
+      --bg-2: #08111a;
+      --bg-3: #0f1c29;
+      --card: rgba(12, 20, 31, 0.72);
+      --card-strong: rgba(12, 20, 31, 0.9);
+      --line: rgba(189, 225, 255, 0.14);
+      --line-strong: rgba(189, 225, 255, 0.24);
+      --text: #edf7ff;
+      --muted: #9cb5ca;
+      --soft: #6f89a0;
+      --accent: #b8ecff;
+      --accent-2: #6bc1ff;
+      --accent-3: #dff7ff;
+      --ok-bg: rgba(124, 240, 186, 0.08);
+      --ok-line: rgba(124, 240, 186, 0.24);
+      --err-bg: rgba(255, 157, 157, 0.08);
+      --err-line: rgba(255, 157, 157, 0.24);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+      --radius-xl: 34px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --max: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(184, 236, 255, 0.13), transparent 32%),
+        radial-gradient(circle at 18% 22%, rgba(107, 193, 255, 0.09), transparent 26%),
+        radial-gradient(circle at 85% 18%, rgba(223, 247, 255, 0.05), transparent 20%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.025), transparent 18%),
+        radial-gradient(circle at 50% 115%, rgba(184,236,255,0.08), transparent 30%);
+      z-index: 0;
+    }
+
+    .snow {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .snow span {
+      position: absolute;
+      top: -20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 0 10px rgba(255,255,255,0.45);
+      animation: snowfall linear infinite;
+    }
+
+    @keyframes snowfall {
+      0% {
+        transform: translate3d(0, -20px, 0) scale(0.72);
+        opacity: 0;
+      }
+      12% { opacity: 0.95; }
+      100% {
+        transform: translate3d(-70px, 110vh, 0) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .glass {
+      background: linear-gradient(180deg, rgba(20, 33, 48, 0.7), rgba(10, 18, 28, 0.86));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .hero {
+      min-height: calc(100vh - 48px);
+      display: grid;
+      align-items: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      padding: 46px;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: auto -140px -160px auto;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(107,193,255,0.18), transparent 64%);
+      pointer-events: none;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: -140px auto auto -100px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(184,236,255,0.16), transparent 66%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) 320px;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: #d8ebfa;
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px rgba(184,236,255,0.85);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      max-width: 780px;
+    }
+
+    .hero p {
+      margin: 18px 0 0;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.82;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .button {
+      border: 0;
+      cursor: pointer;
+      padding: 15px 20px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+
+    .button-primary {
+      color: #04131d;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 14px 28px rgba(107,193,255,0.24);
+    }
+
+    .button-secondary {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero-chip {
+      padding: 16px 18px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .hero-chip strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-chip span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.62;
+    }
+
+    .app {
+      display: none;
+      padding-bottom: 30px;
+    }
+
+    .app.active { display: block; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: #d8ebfa;
+      font-size: 13px;
+    }
+
+    .panel {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 30px 32px 0;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: -0.04em;
+    }
+
+    .panel-subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.72;
+      max-width: 760px;
+    }
+
+    .panel-body {
+      padding: 24px 32px 32px;
+    }
+
+    form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .label-row label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hint {
+      color: var(--soft);
+      font-size: 12px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(4, 10, 16, 0.48);
+      color: var(--text);
+      padding: 14px 15px;
+      border-radius: 16px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #6f8ca4;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--line-strong);
+      box-shadow: 0 0 0 4px rgba(184,236,255,0.1), 0 0 14px rgba(107,193,255,0.16);
+      background: rgba(8, 14, 22, 0.72);
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      min-height: 136px;
+      resize: vertical;
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .role-box {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+    }
+
+    .role-box h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .role-box p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .option + .option {
+      margin-top: 10px;
+    }
+
+    .option:hover {
+      border-color: rgba(189,225,255,0.14);
+      background: rgba(255,255,255,0.055);
+      transform: translateY(-1px);
+    }
+
+    .option input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent-2);
+    }
+
+    .status, .saved {
+      display: none;
+      padding: 14px 15px;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .status.ok, .saved {
+      display: block;
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-line);
+    }
+
+    .status.err {
+      display: block;
+      background: var(--err-bg);
+      border: 1px solid var(--err-line);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .role-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .container { padding: 14px; }
+      .hero-card,
+      .panel-head,
+      .panel-body { padding-left: 18px; padding-right: 18px; }
+      .hero-card { padding-top: 28px; padding-bottom: 28px; }
+      .hero h1 { font-size: 42px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="snow" id="snow"></div>
+
+  <section class="container hero" id="menuSection">
+    <div class="hero-card glass">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Ворота Фростхевена</div>
+          <h1>Вход во Фростхевен</h1>
+          <p>
+            Перед подачей заявки кандидат проходит через главный пункт доступа. Здесь начинается путь во Фростхевен:
+            роли, обязанности, контакт и готовность работать на благо поселения. После входа откроется сама анкета.
+          </p>
+          <div class="hero-actions">
+            <button class="button button-primary" id="openApplicationBtn" type="button">Перейти к заявке</button>
+            <button class="button button-secondary" id="openApplicationBtn2" type="button">Открыть форму</button>
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container app" id="applicationSection">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="pill">Анкета открыта</div>
+        <div class="pill">Фростхевен</div>
+      </div>
+      <button class="button button-secondary" id="backToMenuBtn" type="button">Назад в меню</button>
+    </div>
+
+    <div class="panel glass">
+      <div class="panel-head">
+        <h2 class="panel-title">Заявка на вступление</h2>
+        <p class="panel-subtitle">Заполни анкету, выбери работу, укажи дополнительную роль, время для Фростхевена и контакт для связи.</p>
+      </div>
+
+      <div class="panel-body">
+        <form id="form">
+          <input type="text" id="website" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" />
+          <div class="grid-2">
+            <div class="field">
+              <div class="label-row">
+                <label for="nickname">Ник</label>
+                <span class="hint">обязательно</span>
+              </div>
+              <input id="nickname" placeholder="Например: ShadowFox" required />
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="date">Дата входа на СПК</label>
+                <span class="hint">обязательно</span>
+              </div>
+              <input type="date" id="date" required />
+            </div>
+          </div>
+
+          <div class="role-grid">
+            <div class="role-box">
+              <h3>Основная работа</h3>
+              <p>Выбери одну основную роль, в которой хочешь приносить Фростхевену максимум пользы.</p>
+              <label class="option"><input type="radio" name="job" value="Инженер-Create" /> Инженер-Create</label>
+              <label class="option"><input type="radio" name="job" value="Добытчик ресурсов" /> Добытчик ресурсов</label>
+              <label class="option"><input type="radio" name="job" value="Строитель" /> Строитель</label>
+              <label class="option"><input type="radio" name="job" value="Архитектор" /> Архитектор</label>
+            </div>
+
+            <div class="role-box">
+              <h3>Дополнительная работа</h3>
+              <p>Выбери дополнительные задачи, если хочешь быть полезен ещё и вне основной роли.</p>
+              <label class="option"><input type="checkbox" name="extraJob" value="Гид" /> Гид</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="time">Сколько готов уделять Фростхевену</label>
+              <span class="hint">например: 2–4 часа в день</span>
+            </div>
+            <input id="time" placeholder="Например: 2–4 часа в день" required />
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="contact">Discord или Telegram</label>
+              <span class="hint">для обратной связи</span>
+            </div>
+            <input id="contact" placeholder="@username или name#1234" required />
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="about">Почему хочешь во Фростхевен</label>
+              <span class="hint">пара предложений</span>
+            </div>
+            <textarea id="about" placeholder="Напиши коротко о себе и чем хочешь быть полезен" required></textarea>
+          </div>
+
+          <div id="status" class="status"></div>
+          <div id="saved" class="saved"></div>
+
+          <div class="actions">
+            <button class="button button-primary" type="submit" id="submitBtn">Отправить заявку</button>
+            <button class="button button-secondary" type="button" id="clearBtn">Очистить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const WEBHOOK_URL = 'https://frost-heaven-citywork.vercel.app/api/send-to-telegram';
+    const STORAGE_KEY = 'frosthaven_application_v2';
+    const FORM_STARTED_AT_KEY = 'frosthaven_form_started_at';
+    const LAST_SUBMIT_AT_KEY = 'frosthaven_last_submit_at';
+    const SUBMIT_COOLDOWN_MS = 60 * 1000;
+    const MIN_FILL_TIME_MS = 4000;
+
+    const snow = document.getElementById('snow');
+    for (let i = 0; i < 100; i++) {
+      const flake = document.createElement('span');
+      const size = 2 + Math.random() * 6;
+      flake.style.left = Math.random() * 100 + '%';
+      flake.style.width = size + 'px';
+      flake.style.height = size + 'px';
+      flake.style.opacity = 0.35 + Math.random() * 0.65;
+      flake.style.animationDuration = 4 + Math.random() * 8 + 's';
+      flake.style.animationDelay = Math.random() * 8 + 's';
+      snow.appendChild(flake);
+    }
+
+    const menuSection = document.getElementById('menuSection');
+    const applicationSection = document.getElementById('applicationSection');
+    const openApplicationBtn = document.getElementById('openApplicationBtn');
+    const openApplicationBtn2 = document.getElementById('openApplicationBtn2');
+    const backToMenuBtn = document.getElementById('backToMenuBtn');
+    const form = document.getElementById('form');
+    const status = document.getElementById('status');
+    const saved = document.getElementById('saved');
+    const clearBtn = document.getElementById('clearBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const websiteField = document.getElementById('website');
+
+    function openApplication() {
+      applicationSection.classList.add('active');
+      applicationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function backToMenu() {
+      applicationSection.classList.remove('active');
+      menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    openApplicationBtn.addEventListener('click', openApplication);
+    openApplicationBtn2.addEventListener('click', openApplication);
+    backToMenuBtn.addEventListener('click', backToMenu);
+
+    function updateCooldownState() {
+      const lastSubmitAt = Number(localStorage.getItem(LAST_SUBMIT_AT_KEY) || 0);
+      const now = Date.now();
+      const diff = now - lastSubmitAt;
+      const waitMs = SUBMIT_COOLDOWN_MS - diff;
+
+      if (waitMs > 0) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = `Подожди ${Math.ceil(waitMs / 1000)} сек`;
+        return waitMs;
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Отправить заявку';
+      return 0;
+    }
+
+    setInterval(updateCooldownState, 1000);
+    updateCooldownState();
+
+    function showSaved(data) {
+      saved.style.display = 'block';
+      saved.textContent = [
+        'Последняя заявка:',
+        `Ник: ${data.nickname}`,
+        `Дата СПК: ${data.date}`,
+        `Работа: ${data.job || 'Не выбрано'}`,
+        `Доп. работа: ${data.extraJobs.length ? data.extraJobs.join(', ') : 'Нет'}`,
+        `Время: ${data.time}`,
+        `Контакт: ${data.contact}`,
+        `Почему: ${data.about}`
+      ].join('\n');
+    }
+
+    function fillForm(data) {
+      nickname.value = data.nickname || '';
+      date.value = data.date || '';
+      time.value = data.time || '';
+      contact.value = data.contact || '';
+      about.value = data.about || '';
+
+      document.querySelectorAll('[name="job"]').forEach(el => {
+        el.checked = el.value === data.job;
+      });
+
+      document.querySelectorAll('[name="extraJob"]').forEach(el => {
+        el.checked = (data.extraJobs || []).includes(el.value);
+      });
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+
+      const data = {
+        nickname: nickname.value.trim(),
+        date: date.value,
+        job: document.querySelector('[name="job"]:checked')?.value || '',
+        extraJobs: [...document.querySelectorAll('[name="extraJob"]:checked')].map(el => el.value),
+        time: time.value.trim(),
+        contact: contact.value.trim(),
+        about: about.value.trim()
+      };
+
+      if (!data.job) {
+        status.className = 'status err';
+        status.textContent = 'Выбери основную работу.';
+        return;
+      }
+
+      if (websiteField.value.trim() !== '') {
+        status.className = 'status err';
+        status.textContent = 'Отправка отклонена.';
+        return;
+      }
+
+      const startedAt = Number(localStorage.getItem(FORM_STARTED_AT_KEY) || Date.now());
+      const fillTime = Date.now() - startedAt;
+      if (fillTime < MIN_FILL_TIME_MS) {
+        status.className = 'status err';
+        status.textContent = 'Форма заполнена слишком быстро. Попробуй ещё раз через пару секунд.';
+        return;
+      }
+
+      const waitMs = updateCooldownState();
+      if (waitMs > 0) {
+        status.className = 'status err';
+        status.textContent = `Слишком частая отправка. Подожди ${Math.ceil(waitMs / 1000)} сек.`;
+        return;
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showSaved(data);
+
+      status.className = 'status ok';
+      status.textContent = 'Заявка сохранена. Отправка...';
+
+      try {
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          throw new Error(result.message || 'Ошибка сервера');
+        }
+
+        localStorage.setItem(LAST_SUBMIT_AT_KEY, String(Date.now()));
+        localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+        updateCooldownState();
+
+        status.className = 'status ok';
+        status.textContent = 'Заявка отправлена.';
+      } catch (error) {
+        status.className = 'status err';
+        status.textContent = 'Ошибка: ' + error.message;
+      }
+    };
+
+    clearBtn.onclick = () => {
+      form.reset();
+      localStorage.removeItem(STORAGE_KEY);
+      saved.style.display = 'none';
+      saved.textContent = '';
+      status.className = 'status';
+      status.textContent = '';
+      localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+      updateCooldownState();
+    };
+
+    if (!localStorage.getItem(FORM_STARTED_AT_KEY)) {
+      localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+    }
+
+    ['nickname', 'date', 'time', 'contact', 'about'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          if (!localStorage.getItem(FORM_STARTED_AT_KEY)) {
+            localStorage.setItem(FORM_STARTED_AT_KEY, String(Date.now()));
+          }
+        });
+      }
+    });
+
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        fillForm(parsed);
+        showSaved(parsed);
+        applicationSection.classList.add('active');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  </script>
+</body>
+</html>
