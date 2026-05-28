@@ -1,80 +1,74 @@
-export default async function handler(req, res) {
-  // Настройка CORS (чтобы сайт мог обращаться к серверу Vercel)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Разрешаем всем (можно заменить на домен сайта)
-  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// Отправка формы
+      const form = document.getElementById('frosthaven-form');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusBox = document.getElementById('status');
 
-  // Ответ на предзапрос браузера
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (document.getElementById('website').value !== '') return; // Антиспам
+        
+        if (!isSigned) {
+          alert("Договор недействителен без вашей подписи! Пожалуйста, распишитесь на документе."); return;
+        }
 
-  // Запрещаем все кроме POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
-  }
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Отправка...';
+        statusBox.className = 'status-box';
 
-  // Подключаем переменные из настроек Vercel (Environment Variables)
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+        // Генерируем картинку подписи
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = signaturePad.width;
+        tempCanvas.height = signaturePad.height;
+        const tCtx = tempCanvas.getContext('2d');
+        tCtx.fillStyle = '#f3e9d2'; // Цвет бумаги
+        tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tCtx.drawImage(signaturePad, 0, 0);
+        
+        const signatureDataURL = tempCanvas.toDataURL('image/png');
 
-  if (!botToken || !chatId) {
-    return res.status(500).json({ ok: false, message: 'Server error: Tokens missing in Vercel settings.' });
-  }
+        const data = {
+          nickname: document.getElementById('nickname').value.trim(),
+          date: document.getElementById('date').value,
+          job: document.querySelector('[name="job"]:checked')?.value || '',
+          extraJobs: Array.from(document.querySelectorAll('[name="extraJob"]:checked')).map(el => el.value),
+          time: document.getElementById('time').value.trim(),
+          contact: document.getElementById('contact').value.trim(),
+          about: document.getElementById('about').value.trim(),
+          signature: signatureDataURL
+        };
 
-  // Получаем все данные из запроса сайта
-  const { nickname, date, job, extraJobs, time, contact, about, signature } = req.body;
+        try {
+          // Умный выбор API-пути (избегает ошибок CORS если оба файла лежат на одном сайте)
+          const apiUrl = window.location.hostname.includes('vercel.app') 
+            ? '/api/send-to-telegram' 
+            : 'https://frost-heaven-citywork.vercel.app/api/send-to-telegram';
 
-  // Формируем красивый текст сообщения
-  const caption = `
-📜 <b>НОВЫЙ ДОГОВОР: ФРОСТХЕВЕН</b> 📜
+          const res = await fetch(apiUrl, {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(data)
+          });
+          
+          // Читаем ответ сервера, даже если произошла ошибка, чтобы получить её текст
+          const result = await res.json().catch(() => ({}));
+          
+          if (!res.ok || result.ok === false) {
+            throw new Error(result.message || 'Сервер недоступен. Проверьте логи Vercel.');
+          }
 
-👤 <b>Ник:</b> ${nickname}
-📅 <b>Дата захода:</b> ${date}
-📞 <b>Связь:</b> ${contact}
-⏱ <b>Прайм-тайм:</b> ${time}
+          statusBox.className = 'status-box ok';
+          statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена в Мэрию!';
+          form.reset(); ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false;
+          submitBtn.innerHTML = 'Успешно';
+          
+          setTimeout(() => {
+            submitBtn.disabled = false; submitBtn.innerHTML = 'Подписать и Отправить';
+            statusBox.style.display = 'none'; prevStep(4); prevStep(3); prevStep(2); 
+          }, 6000);
 
-⚙️ <b>Профессия:</b> ${job}
-🔧 <b>Доп. роли:</b> ${extraJobs && extraJobs.length > 0 ? extraJobs.join(', ') : 'Нет'}
-
-💬 <b>Мотивация:</b> 
-<i>"${about}"</i>
-  `;
-
-  try {
-    // 1. Извлекаем "чистую" Base64 строку картинки, убирая служебный префикс
-    const base64Data = signature.replace(/^data:image\/\w+;base64,/, "");
-    
-    // 2. Превращаем строку обратно в файл (бинарный буфер)
-    const imageBuffer = Buffer.from(base64Data, 'base64');
-
-    // 3. Используем стандартный FormData для отправки картинки
-    const form = new FormData();
-    form.append('chat_id', chatId);
-    form.append('caption', caption);
-    form.append('parse_mode', 'HTML');
-    
-    // Запаковываем буфер как файл
-    const blob = new Blob([imageBuffer], { type: 'image/png' });
-    form.append('photo', blob, 'signature.png');
-
-    // 4. Отправляем запрос к API Telegram (метод sendPhoto!)
-    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-      method: 'POST',
-      body: form
-    });
-
-    const result = await response.json();
-
-    if (result.ok) {
-      res.status(200).json({ ok: true });
-    } else {
-      console.error("Telegram API Error:", result);
-      res.status(400).json({ ok: false, message: result.description });
-    }
-  } catch (error) {
-    console.error("Backend Error:", error);
-    res.status(500).json({ ok: false, message: error.message });
-  }
-}
+        } catch (err) {
+          statusBox.className = 'status-box err';
+          statusBox.textContent = '❌ ' + err.message;
+          submitBtn.disabled = false; submitBtn.innerHTML = 'Повторить отправку';
+        }
+      });
