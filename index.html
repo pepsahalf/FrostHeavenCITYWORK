@@ -202,7 +202,6 @@
     .status-box.err { display: block; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Адаптив */
     @media (max-width: 768px) {
       .hero h1 { font-size: 40px; }
       .input-grid { grid-template-columns: 1fr; }
@@ -474,10 +473,8 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Прелоадер
       setTimeout(() => { document.getElementById('preloader').classList.add('hidden'); }, 1200);
 
-      // Курсор
       const cursor = document.getElementById('custom-cursor');
       const dot = document.getElementById('cursor-dot');
       let mouseX = 0, mouseY = 0, dotX = 0, dotY = 0;
@@ -489,11 +486,9 @@
         el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
       });
 
-      // Навигация
       const navbar = document.getElementById('navbar');
       window.addEventListener('scroll', () => { if(window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled'); });
 
-      // Canvas Снег
       const canvasBg = document.getElementById('bg-canvas');
       const ctxBg = canvasBg.getContext('2d');
       let particles = [], width, height;
@@ -508,46 +503,30 @@
       function animateParticles() { ctxBg.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
       animateParticles();
 
-      // Canvas Подпись
       const signaturePad = document.getElementById('signature-pad');
       const ctxPad = signaturePad.getContext('2d');
-      let isDrawing = false;
-      let isSigned = false;
+      let isDrawing = false, isSigned = false;
 
-      ctxPad.lineWidth = 3;
-      ctxPad.strokeStyle = '#0f172a'; // Чернила
-      ctxPad.lineCap = 'round';
-      ctxPad.lineJoin = 'round';
-
+      ctxPad.lineWidth = 3; ctxPad.strokeStyle = '#0f172a'; ctxPad.lineCap = 'round'; ctxPad.lineJoin = 'round';
       function getPointerPos(e) {
         const rect = signaturePad.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return { x: (clientX - rect.left) * (signaturePad.width / rect.width), y: (clientY - rect.top) * (signaturePad.height / rect.height) };
       }
       function startDraw(e) { e.preventDefault(); isDrawing = true; isSigned = true; const pos = getPointerPos(e); ctxPad.beginPath(); ctxPad.moveTo(pos.x, pos.y); }
       function draw(e) { if (!isDrawing) return; e.preventDefault(); const pos = getPointerPos(e); ctxPad.lineTo(pos.x, pos.y); ctxPad.stroke(); }
       function endDraw() { isDrawing = false; ctxPad.beginPath(); }
-
       signaturePad.addEventListener('mousedown', startDraw); signaturePad.addEventListener('mousemove', draw); signaturePad.addEventListener('mouseup', endDraw); signaturePad.addEventListener('mouseout', endDraw);
       signaturePad.addEventListener('touchstart', startDraw, {passive: false}); signaturePad.addEventListener('touchmove', draw, {passive: false}); signaturePad.addEventListener('touchend', endDraw);
-
       document.getElementById('clear-signature').addEventListener('click', () => { ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false; });
 
-      // Навигация по шагам
-      const dateInput = document.getElementById('date');
-      dateInput.max = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('date'); dateInput.max = new Date().toISOString().split('T')[0];
 
       window.nextStep = function(currentStep) {
-        if (currentStep === 1) {
-          const inputs = ['nickname', 'date', 'contact', 'time'].map(id => document.getElementById(id));
-          for(let el of inputs) { if(!el.checkValidity()) { el.reportValidity(); return; } }
-        }
+        if (currentStep === 1) { const inputs = ['nickname', 'date', 'contact', 'time'].map(id => document.getElementById(id)); for(let el of inputs) { if(!el.checkValidity()) { el.reportValidity(); return; } } }
         if (currentStep === 2 && !document.querySelector('[name="job"]:checked')) { alert("Необходимо выбрать основную специализацию!"); return; }
         if (currentStep === 3) {
-          const about = document.getElementById('about');
-          if(!about.checkValidity()) { about.reportValidity(); return; }
-          
+          const about = document.getElementById('about'); if(!about.checkValidity()) { about.reportValidity(); return; }
           document.getElementById('doc-nickname').textContent = document.getElementById('nickname').value;
           document.getElementById('doc-job').textContent = document.querySelector('[name="job"]:checked').value;
           const extraJobs = Array.from(document.querySelectorAll('[name="extraJob"]:checked')).map(el => el.value);
@@ -556,7 +535,6 @@
           document.getElementById('doc-contact').textContent = document.getElementById('contact').value;
           document.getElementById('doc-about').textContent = document.getElementById('about').value;
         }
-
         document.getElementById(`step-${currentStep}`).classList.remove('active'); document.getElementById(`step-${currentStep}`).classList.add('prev');
         document.getElementById(`step-${currentStep + 1}`).classList.remove('prev'); document.getElementById(`step-${currentStep + 1}`).classList.add('active');
         document.getElementById(`indicator-${currentStep}`).classList.add('completed'); document.getElementById(`indicator-${currentStep + 1}`).classList.add('active');
@@ -567,32 +545,19 @@
         document.getElementById(`indicator-${currentStep}`).classList.remove('active'); document.getElementById(`indicator-${currentStep - 1}`).classList.remove('completed');
       };
 
-      // Отправка формы
       const form = document.getElementById('frosthaven-form');
       const submitBtn = document.getElementById('submitBtn');
       const statusBox = document.getElementById('status');
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (document.getElementById('website').value !== '') return; // Антиспам
-        
-        if (!isSigned) {
-          alert("Договор недействителен без вашей подписи! Пожалуйста, распишитесь на документе."); return;
-        }
+        if (document.getElementById('website').value !== '') return;
+        if (!isSigned) { alert("Договор недействителен без вашей подписи! Пожалуйста, распишитесь на документе."); return; }
 
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Отправка...';
-        statusBox.className = 'status-box';
-
-        // Генерируем картинку подписи (добавляем цвет фона "бумаги", чтобы в ТГ не было черного фона)
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = signaturePad.width;
-        tempCanvas.height = signaturePad.height;
-        const tCtx = tempCanvas.getContext('2d');
-        tCtx.fillStyle = '#f3e9d2'; // Цвет бумаги
-        tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        tCtx.drawImage(signaturePad, 0, 0);
+        submitBtn.disabled = true; submitBtn.innerHTML = 'Отправка...'; statusBox.className = 'status-box';
         
+        const tempCanvas = document.createElement('canvas'); tempCanvas.width = signaturePad.width; tempCanvas.height = signaturePad.height;
+        const tCtx = tempCanvas.getContext('2d'); tCtx.fillStyle = '#f3e9d2'; tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); tCtx.drawImage(signaturePad, 0, 0);
         const signatureDataURL = tempCanvas.toDataURL('image/png');
 
         const data = {
@@ -603,32 +568,29 @@
           time: document.getElementById('time').value.trim(),
           contact: document.getElementById('contact').value.trim(),
           about: document.getElementById('about').value.trim(),
-          signature: signatureDataURL // Передаем картинку в Base64
+          signature: signatureDataURL
         };
 
         try {
-          // УБЕДИТЕСЬ, что здесь стоит правильная ссылка на ваш Vercel!
-          const res = await fetch('https://frost-heaven-citywork.vercel.app/api/send-to-telegram', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+          // Гарантированно правильная ссылка для Vercel
+          const apiUrl = window.location.origin + '/api/send-to-telegram';
+
+          const res = await fetch(apiUrl, {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(data)
           });
           
-          if (!res.ok) throw new Error('Сервер недоступен. Попробуйте позже.');
-          const result = await res.json();
-          if (!result.ok) throw new Error(result.message || 'Ошибка обработки.');
-
-          statusBox.className = 'status-box ok';
-          statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена в Мэрию!';
-          form.reset(); ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false;
-          submitBtn.innerHTML = 'Успешно';
+          let result;
+          try { result = await res.json(); } catch(e) { result = {}; }
           
-          setTimeout(() => {
-            submitBtn.disabled = false; submitBtn.innerHTML = 'Подписать и Отправить';
-            statusBox.style.display = 'none'; prevStep(4); prevStep(3); prevStep(2); 
-          }, 6000);
+          if (!res.ok || result.ok === false) throw new Error(result.message || `Ошибка сервера (Код ${res.status}). Убедитесь что залили папку api в Vercel.`);
 
+          statusBox.className = 'status-box ok'; statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена!';
+          form.reset(); ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false; submitBtn.innerHTML = 'Успешно';
+          setTimeout(() => { submitBtn.disabled = false; submitBtn.innerHTML = 'Подписать и Отправить'; statusBox.style.display = 'none'; prevStep(4); prevStep(3); prevStep(2); }, 6000);
         } catch (err) {
-          statusBox.className = 'status-box err';
-          statusBox.textContent = '❌ ' + err.message;
+          statusBox.className = 'status-box err'; statusBox.textContent = '❌ ' + err.message;
           submitBtn.disabled = false; submitBtn.innerHTML = 'Повторить отправку';
         }
       });
