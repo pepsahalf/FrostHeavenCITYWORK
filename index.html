@@ -3,573 +3,633 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Фростхевен — Заявка</title>
+  <title>Фростхевен | Эпическая Заявка</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+
   <style>
+    /* =========================================
+       1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И НАСТРОЙКИ
+       ========================================= */
     :root {
-      --bg-base: #030712;
+      --bg-deep: #010409;
+      --bg-base: #020617;
+      --bg-surface: #0f172a;
       --glass-bg: rgba(15, 23, 42, 0.45);
       --glass-border: rgba(255, 255, 255, 0.08);
-      
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      
       --accent-ice: #38bdf8;
-      
+      --accent-emerald: #10b981;
       --radius-xl: 32px;
       --radius-md: 16px;
-      --max-w: 1040px;
+      --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
 
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-base); }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.2); border-radius: 10px; border: 2px solid var(--bg-deep); }
     ::-webkit-scrollbar-thumb:hover { background: var(--accent-ice); }
 
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      color: var(--text-main);
-      background-color: var(--bg-base);
-      overflow-x: hidden;
-      min-height: 100vh;
-      line-height: 1.6;
-    }
+    body { font-family: 'Montserrat', sans-serif; color: var(--text-main); background-color: var(--bg-deep); overflow-x: hidden; min-height: 100vh; line-height: 1.6; }
 
-    /* --- ЛЕДЯНОЙ ФОН --- */
-    .bg-container {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-      background: radial-gradient(circle at 50% -10%, #0f172a, var(--bg-base) 80%);
-    }
+    /* =========================================
+       2. КАСТОМНЫЙ КУРСОР
+       ========================================= */
+    .custom-cursor { position: fixed; top: 0; left: 0; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--accent-ice); pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background 0.3s, border-color 0.3s; box-shadow: 0 0 15px var(--accent-ice); }
+    .custom-cursor.hover { width: 50px; height: 50px; background: rgba(56, 189, 248, 0.1); border-color: rgba(255, 255, 255, 0.5); backdrop-filter: blur(2px); }
+    .cursor-dot { position: fixed; top: 0; left: 0; width: 4px; height: 4px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); box-shadow: 0 0 10px #fff; }
 
-    .aurora-blob {
-      position: absolute; filter: blur(120px); opacity: 0.5;
-      animation: floatBlob 20s infinite alternate ease-in-out;
-      border-radius: 50%;
-    }
-    .blob-1 { top: -10%; left: -10%; width: 60vw; height: 60vw; background: rgba(2, 132, 199, 0.35); animation-delay: 0s; }
-    .blob-2 { top: 40%; right: -20%; width: 50vw; height: 50vw; background: rgba(56, 189, 248, 0.2); animation-delay: -5s; }
+    /* =========================================
+       3. ПРЕЛОАДЕР И ФОН
+       ========================================= */
+    #preloader { position: fixed; inset: 0; background: var(--bg-deep); z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease, visibility 1s ease; }
+    #preloader.hidden { opacity: 0; visibility: hidden; }
+    .loader-rune { width: 80px; height: 80px; animation: float 3s infinite ease-in-out; }
+    .loader-rune svg { width: 100%; height: 100%; filter: drop-shadow(0 0 20px var(--accent-ice)); }
+    .loader-path { stroke-dasharray: 200; stroke-dashoffset: 200; animation: drawRune 2s forwards ease-in-out infinite alternate; }
+    .loader-text { margin-top: 20px; font-family: 'Cinzel', serif; font-size: 24px; letter-spacing: 4px; color: var(--accent-ice); animation: pulseText 2s infinite; }
+    @keyframes drawRune { to { stroke-dashoffset: 0; } }
+    @keyframes pulseText { 0%, 100% { opacity: 0.5; text-shadow: 0 0 10px transparent; } 50% { opacity: 1; text-shadow: 0 0 20px var(--accent-ice); } }
+
+    #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .bg-gradient { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% -20%, #1e293b 0%, var(--bg-deep) 70%); }
+    .aurora { position: absolute; inset: 0; filter: blur(120px); opacity: 0.35; z-index: -1; }
+    .aurora-1 { background: radial-gradient(circle at 10% 30%, #0ea5e9, transparent 50%); animation: auroraMove 20s infinite alternate ease-in-out; }
+    .aurora-2 { background: radial-gradient(circle at 90% 60%, #38bdf8, transparent 50%); animation: auroraMove 25s infinite alternate-reverse ease-in-out; }
+    @keyframes auroraMove { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.2) translate(10%, -10%); } }
+
+    /* =========================================
+       4. УТИЛИТЫ
+       ========================================= */
+    .container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .glass-panel { background: var(--glass-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-top: 1px solid rgba(255,255,255,0.2); box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(255,255,255,0.02); border-radius: var(--radius-xl); }
+    .text-gradient { background: linear-gradient(135deg, #ffffff 0%, #bae6fd 50%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; }
+    .title-cinzel { font-family: 'Cinzel', serif; font-weight: 800; text-transform: uppercase; }
+
+    /* =========================================
+       5. НАВИГАЦИЯ И ГЛАВНЫЙ ЭКРАН
+       ========================================= */
+    nav { position: fixed; top: 0; width: 100%; padding: 20px 0; z-index: 100; transition: all 0.4s ease; }
+    nav.scrolled { padding: 15px 0; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-family: 'Cinzel', serif; font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .logo svg { width: 30px; height: 30px; color: var(--accent-ice); filter: drop-shadow(0 0 10px var(--accent-ice)); }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: color 0.3s; position: relative; }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--accent-ice); transition: width 0.3s; box-shadow: 0 0 10px var(--accent-ice); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; padding-top: 80px; }
+    .hero-content { text-align: center; max-width: 900px; padding: 60px; transform-style: preserve-3d; perspective: 1000px; }
+    .floating-star { position: relative; width: 180px; height: 180px; margin: 0 auto 40px; transform-style: preserve-3d; animation: float 6s ease-in-out infinite; }
+    .star-glow { position: absolute; inset: -20px; background: radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, transparent 70%); filter: blur(30px); z-index: 1; }
+    .star-rings { position: absolute; inset: 0; border-radius: 50%; border: 2px dashed rgba(56, 189, 248, 0.3); animation: spin 20s linear infinite; z-index: 2; }
+    .floating-star img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; position: relative; z-index: 3; filter: drop-shadow(0 0 40px rgba(56, 189, 248, 0.8)); transform: translateZ(50px); }
+    .hero h1 { font-size: clamp(40px, 7vw, 90px); line-height: 1.1; margin-bottom: 20px; transform: translateZ(30px); }
+    .hero p { font-size: 18px; color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; transform: translateZ(20px); }
+
+    .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 15px; padding: 20px 50px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: var(--radius-md); border: none; color: #fff; background: transparent; overflow: hidden; transform: translateZ(40px); transition: all 0.4s ease; }
+    .btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); z-index: -2; }
+    .btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); opacity: 0; z-index: -1; transition: opacity 0.4s ease; }
+    .btn:hover::after { opacity: 1; }
+    .btn:hover { transform: translateY(-5px) translateZ(50px); box-shadow: 0 20px 40px rgba(2, 132, 199, 0.5), inset 0 0 20px rgba(255,255,255,0.4); }
+
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* =========================================
+       6. АНКЕТА И ПРОГРЕСС-БАР
+       ========================================= */
+    .application-section { padding: 100px 0 150px; position: relative; }
+    .steps-nav { display: flex; justify-content: space-between; position: relative; margin-bottom: 60px; padding: 0 40px; }
+    .steps-nav::before { content: ''; position: absolute; top: 24px; left: 60px; right: 60px; height: 2px; background: rgba(255,255,255,0.1); z-index: 1; }
+    .step-indicator { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100px; }
+    .step-dot { width: 50px; height: 50px; border-radius: 50%; background: var(--bg-surface); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; transition: all 0.5s var(--transition-bounce); box-shadow: 0 0 0 6px var(--bg-deep); }
+    .step-label { font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; transition: color 0.3s; text-align: center; }
+    .step-indicator.active .step-dot { background: var(--accent-ice); border-color: #fff; box-shadow: 0 0 20px rgba(56, 189, 248, 0.6), 0 0 0 6px var(--bg-deep); transform: scale(1.1); color: var(--bg-deep); }
+    .step-indicator.active .step-label { color: #fff; }
+    .step-indicator.completed .step-dot { background: var(--accent-emerald); border-color: #fff; color: #fff; }
+
+    .form-wrapper { position: relative; min-height: 650px; overflow: hidden; padding: 20px; }
+    .form-step { position: absolute; inset: 0; opacity: 0; visibility: hidden; transform: translateX(50px); transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); padding: 40px 50px; }
+    .form-step.active { position: relative; opacity: 1; visibility: visible; transform: translateX(0); }
+    .form-step.prev { transform: translateX(-50px); }
+    .step-title { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+    .step-desc { color: var(--text-muted); font-size: 16px; margin-bottom: 40px; }
+
+    /* =========================================
+       7. ПОЛЯ ВВОДА
+       ========================================= */
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+    .input-group { display: flex; flex-direction: column; gap: 10px; }
+    .input-group label { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #cbd5e1; letter-spacing: 1px; display: flex; justify-content: space-between; }
+    .input-group .hint { font-size: 12px; color: #64748b; font-weight: 500; text-transform: none; }
     
-    @keyframes floatBlob { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10%, 15%) scale(1.1); } }
-
-    .snow { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-    .snow span { position: absolute; top: -10px; border-radius: 50%; background: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.8); animation: snowfall linear infinite; }
-    @keyframes snowfall { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(110vh) scale(1.2); opacity: 0; } }
-
-    .container { position: relative; z-index: 2; max-width: var(--max-w); margin: 0 auto; padding: 40px 20px; }
-
-    /* --- ЧИСТОЕ СТЕКЛО --- */
-    .glass {
-      background: var(--glass-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-      border: 1px solid var(--glass-border); border-top: 1px solid rgba(255,255,255,0.15); border-left: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(255,255,255,0.03); border-radius: var(--radius-xl);
-    }
-
-    .text-gradient {
-      background: linear-gradient(135deg, #ffffff 0%, #bae6fd 50%, #0ea5e9 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      display: inline-block; filter: drop-shadow(0 4px 15px rgba(56, 189, 248, 0.25));
-    }
-
-    /* --- СЕКЦИЯ ГЕРОЯ --- */
-    .hero { min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-    .hero.hidden { opacity: 0; transform: scale(0.9) translateY(-30px); pointer-events: none; position: absolute; z-index: -1; }
-
-    .hero-card { padding: 80px 50px; text-align: center; max-width: 840px; width: 100%; position: relative; animation: floatCard 8s ease-in-out infinite; }
-    @keyframes floatCard { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-    .card-top-glow { position: absolute; top: 0; left: 20%; right: 20%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent-ice), transparent); opacity: 0.6; box-shadow: 0 0 20px 2px var(--accent-ice); }
-
-    .elegant-corner { position: absolute; width: 30px; height: 30px; border: 2px solid transparent; opacity: 0.5; transition: all 0.3s ease; }
-    .hero-card:hover .elegant-corner { opacity: 0.8; width: 40px; height: 40px; }
-    .ec-tl { top: 24px; left: 24px; border-top-color: var(--accent-ice); border-left-color: var(--accent-ice); border-top-left-radius: 12px; }
-    .ec-tr { top: 24px; right: 24px; border-top-color: var(--accent-ice); border-right-color: var(--accent-ice); border-top-right-radius: 12px; }
-    .ec-bl { bottom: 24px; left: 24px; border-bottom-color: var(--accent-ice); border-left-color: var(--accent-ice); border-bottom-left-radius: 12px; }
-    .ec-br { bottom: 24px; right: 24px; border-bottom-color: var(--accent-ice); border-right-color: var(--accent-ice); border-bottom-right-radius: 12px; }
-
-    /* МАГИЧЕСКАЯ АУРА ЗВЕЗДЫ */
-    .hero-mc-item { position: relative; width: 160px; height: 160px; margin: 0 auto 35px; display: flex; align-items: center; justify-content: center; animation: floatItem 5s ease-in-out infinite; }
-    .magic-ring { position: absolute; border-radius: 50%; pointer-events: none; }
-    .ring-1 { inset: 5px; border: 1px dashed rgba(56, 189, 248, 0.3); animation: spinRight 15s linear infinite; }
-    .ring-2 { inset: -5px; border: 1px solid transparent; border-top-color: rgba(2, 132, 199, 0.5); border-bottom-color: rgba(2, 132, 199, 0.5); animation: spinLeft 10s linear infinite; }
-    .item-sphere { position: absolute; inset: 20px; border-radius: 50%; background: radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%); backdrop-filter: blur(2px); z-index: 1; }
-    .item-glow { position: absolute; width: 50%; height: 50%; border-radius: 50%; background: var(--accent-ice); filter: blur(40px); opacity: 0.5; animation: pulseGlow 4s infinite alternate; z-index: 0; }
-    .hero-mc-item img { position: relative; width: 70%; height: 70%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.6)) drop-shadow(0 10px 10px rgba(0,0,0,0.5)); z-index: 2; transition: transform 0.3s ease; }
-    .hero-mc-item:hover img { transform: scale(1.1) rotate(5deg); }
-
-    @keyframes floatItem { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-    @keyframes spinRight { 100% { transform: rotate(360deg); } }
-    @keyframes spinLeft { 100% { transform: rotate(-360deg); } }
-    @keyframes pulseGlow { 0% { opacity: 0.3; transform: scale(0.9); } 100% { opacity: 0.6; transform: scale(1.2); } }
-
-    .eyebrow-badge { display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px; margin-bottom: 25px; border-radius: 100px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.3); font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-main); }
-    .live-dot { width: 8px; height: 8px; background: #34d399; border-radius: 50%; box-shadow: 0 0 8px #34d399; animation: blink 2s infinite; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-    .hero h1 { font-size: clamp(44px, 8vw, 76px); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 20px; font-weight: 800; }
-    .drop-shadow-glow { filter: drop-shadow(0 0 25px rgba(2, 132, 199, 0.4)); }
+    .input-wrapper { position: relative; display: flex; align-items: center; background: rgba(2, 6, 23, 0.6); border-radius: 16px; border: 2px solid rgba(255,255,255,0.05); transition: all 0.3s ease; box-shadow: inset 0 4px 10px rgba(0,0,0,0.5); overflow: hidden; }
+    .input-wrapper:focus-within { border-color: var(--accent-ice); box-shadow: 0 0 20px rgba(56, 189, 248, 0.2), inset 0 4px 10px rgba(0,0,0,0.5); background: rgba(15, 23, 42, 0.8); }
+    .input-icon { position: absolute; left: 20px; color: #64748b; transition: all 0.3s ease; pointer-events: none; }
+    .input-wrapper:focus-within .input-icon { color: var(--accent-ice); transform: scale(1.1); filter: drop-shadow(0 0 5px var(--accent-ice)); }
     
-    .hero-divider { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 0 auto 20px; width: 50%; opacity: 0.6; }
-    .hero-divider .line { height: 1px; flex: 1; background: linear-gradient(90deg, transparent, var(--accent-ice), transparent); }
-    .hero-divider .diamond { width: 6px; height: 6px; background: var(--accent-ice); transform: rotate(45deg); box-shadow: 0 0 8px var(--accent-ice); }
+    input[type="text"], input[type="date"], textarea { width: 100%; background: transparent; border: none; color: #fff; padding: 20px 20px 20px 60px; font-size: 16px; font-family: inherit; font-weight: 500; outline: none; }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.2); }
+    textarea { min-height: 150px; resize: none; padding-top: 20px; }
+    .textarea-wrapper .input-icon { top: 22px; }
 
-    .hero-subtitle { font-size: 20px; color: #bae6fd; font-weight: 500; margin-bottom: 12px; }
-    .hero-desc { color: var(--text-muted); font-size: 16px; max-width: 580px; margin: 0 auto 40px; font-weight: 400; line-height: 1.6; }
-
-    /* КНОПКИ */
-    .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 18px 42px; font-size: 16px; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all 0.3s ease; overflow: hidden; font-family: inherit; }
-    .btn-primary { 
-      background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; 
-      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.3), inset 0 2px 4px rgba(255,255,255,0.2); 
-    }
-    .btn-primary::after { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: skewX(-20deg); transition: 0s; }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(56, 189, 248, 0.5); }
-    .btn-primary:hover::after { left: 200%; transition: 0.8s ease-in-out; }
-    
-    .btn-secondary { background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 14px 28px; }
-    .btn-secondary:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
-
-    .pulse-btn svg { transition: transform 0.3s ease; }
-    .pulse-btn:hover svg { transform: translateX(4px); }
-
-    /* --- СЕКЦИЯ АНКЕТЫ --- */
-    .app { display: none; opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
-    .app.active { display: block; opacity: 1; transform: translateY(0); }
-
-    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .badge { padding: 8px 14px; font-size: 13px; font-weight: 600; border-radius: 8px; background: rgba(56, 189, 248, 0.1); color: var(--accent-ice); border: 1px solid rgba(56, 189, 248, 0.2); }
-
-    .panel-head { padding: 40px 50px 20px; border-bottom: 1px solid var(--glass-border); position: relative; }
-    .panel-head::after { content: ""; position: absolute; bottom: -1px; left: 50px; width: 80px; height: 2px; background: var(--accent-ice); border-radius: 2px; }
-    .panel-head h2 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
-    .panel-head p { color: var(--text-muted); font-size: 15px; }
-    .panel-body { padding: 35px 50px 50px; }
-
-    form { display: flex; flex-direction: column; gap: 32px; }
-    .form-group { animation: fadeUp 0.6s ease backwards; }
-    .form-group:nth-child(1) { animation-delay: 0.1s; } .form-group:nth-child(2) { animation-delay: 0.2s; }
-    .form-group:nth-child(3) { animation-delay: 0.3s; } .form-group:nth-child(4) { animation-delay: 0.4s; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .label-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
-    .label-row label { font-size: 13px; font-weight: 600; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; }
-    .label-row .hint { font-size: 12px; color: #64748b; }
-
-    /* ЧИСТЫЕ ПОЛЯ ВВОДА */
-    .input-wrapper {
-      position: relative; display: flex; align-items: center;
-      background: rgba(15, 23, 42, 0.5); border-radius: 12px;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05);
-      transition: background 0.3s ease; overflow: hidden;
-    }
-    .input-wrapper::after {
-      content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent-ice), transparent);
-      opacity: 0; transition: all 0.4s ease; transform: scaleX(0);
-    }
-    .input-wrapper:focus-within { background: rgba(30, 41, 59, 0.6); }
-    .input-wrapper:focus-within::after { opacity: 1; transform: scaleX(1); }
-
-    .input-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #64748b; transition: all 0.3s ease; pointer-events: none; z-index: 2; }
-    .input-wrapper:focus-within .input-icon { color: var(--accent-ice); filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4)); }
-    .textarea-wrapper .input-icon { top: 20px; transform: none; }
-
-    input[type="text"], input[type="date"], textarea { width: 100%; background: transparent; border: none; color: #fff; padding: 18px 20px 18px 52px; font-size: 16px; font-family: inherit; z-index: 1; outline: none; }
-    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.25); font-weight: 300; }
-    input:-webkit-autofill { -webkit-text-fill-color: #fff !important; -webkit-box-shadow: 0 0 0px 1000px #0f172a inset !important; transition: background-color 5000s ease-in-out 0s; }
-    input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 3; }
-    input[type="date"] { color: rgba(255,255,255,0.7); } input[type="date"]:valid, input[type="date"]:focus { color: #fff; }
-    textarea { min-height: 140px; resize: vertical; padding-top: 18px; line-height: 1.6; }
-
-    /* ЭЛЕГАНТНЫЕ КАРТОЧКИ РОЛЕЙ */
-    .role-section h3 { font-size: 17px; margin-bottom: 6px; color: #fff; font-weight: 600; }
-    .role-section p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
-    .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    
-    .role-card {
-      position: relative; display: flex; align-items: center; gap: 18px; padding: 16px 20px;
-      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); user-select: none;
-    }
+    /* =========================================
+       8. ДИЗАЙН КАРТОЧЕК ПРОФЕССИЙ 
+       ========================================= */
+    .roles-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+    .role-card { position: relative; display: block; border-radius: 20px; background: rgba(15, 23, 42, 0.5); border: 2px solid rgba(255,255,255,0.05); transition: all 0.4s var(--transition-bounce); overflow: hidden; }
     .role-card input { position: absolute; opacity: 0; width: 0; height: 0; }
-
-    /* Индикатор-кружок */
-    .role-card::before {
-      content: ''; position: absolute; top: 16px; right: 16px; width: 20px; height: 20px;
-      border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); background: transparent;
-      transition: all 0.3s ease;
-    }
-
-    .card-icon { width: 52px; height: 52px; border-radius: 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; transition: 0.3s; position: relative; z-index: 2; }
+    .role-bg { position: absolute; inset: 0; background: radial-gradient(circle at 0% 50%, var(--card-color), transparent 60%); opacity: 0; transition: opacity 0.4s ease; z-index: 1; pointer-events: none; }
+    .role-card:hover .role-bg { opacity: 0.1; }
+    .role-card:has(input:checked) { border-color: var(--card-color); background: rgba(15, 23, 42, 0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 25px rgba(255,255,255,0.03); transform: translateX(10px); }
+    .role-card:has(input:checked) .role-bg { opacity: 0.2; }
+    .role-content { display: flex; align-items: center; padding: 20px 25px; gap: 20px; position: relative; z-index: 2; }
+    .role-icon { width: 65px; height: 65px; border-radius: 16px; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); transition: all 0.4s ease; }
+    .role-card:has(input:checked) .role-icon { background: rgba(0,0,0,0.8); border-color: var(--card-color); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    .role-icon img, .role-icon svg { width: 36px; height: 36px; object-fit: contain; image-rendering: pixelated; transition: all 0.4s var(--transition-bounce); }
+    .role-card:hover .role-icon img, .role-card:hover .role-icon svg { transform: scale(1.2); filter: drop-shadow(0 0 10px var(--card-color)); }
+    .role-card:has(input[value="Инженер-Create"]:checked) .role-icon svg { animation: spin 4s linear infinite; }
+    .role-card:has(input[value="Инженер-TFMG"]:checked) .role-icon svg { animation: spin 2s linear infinite; }
+    .role-info { flex: 1; }
+    .role-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .role-header strong { font-size: 20px; color: #fff; font-weight: 800; letter-spacing: 0.5px; }
+    .role-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; letter-spacing: 0.5px; }
+    .role-info span.desc { font-size: 14px; color: var(--text-muted); font-weight: 500; display: block; }
     
-    /* ПРУЖИНИСТАЯ АНИМАЦИЯ ИКОНКИ (РАБОТАЕТ ТЕПЕРЬ ДЛЯ SVG И IMG) */
-    .card-icon img, .card-icon svg { 
-      width: 32px; height: 32px; object-fit: contain; image-rendering: pixelated; 
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
-    }
-    
-    .card-info { flex: 1; z-index: 2; padding-right: 25px; }
-    .card-info strong { display: block; font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 2px; }
-    .card-info span { display: block; font-size: 13px; color: #64748b; }
+    .role-checkbox { width: 42px; height: 42px; border: 3px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; transition: all 0.4s var(--transition-bounce); position: relative; }
+    .role-card:has(input[type="radio"]) .role-checkbox { border-radius: 50%; }
+    .role-card:has(input[type="checkbox"]) .role-checkbox { border-radius: 12px; }
+    .role-card:has(input:checked) .role-checkbox { background: var(--card-color); border-color: #fff; box-shadow: 0 0 25px var(--card-color), inset 0 0 10px rgba(0,0,0,0.3); transform: scale(1.25) rotate(-8deg); }
+    .role-checkbox svg { width: 26px; height: 26px; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset 0.4s ease 0.1s; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+    .role-card:has(input:checked) .role-checkbox svg { stroke-dashoffset: 0; }
+    .section-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 30px 0 20px; }
+    .section-divider::before, .section-divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0 15px; }
 
-    /* ЭФФЕКТ ПРИ НАВЕДЕНИИ (ЗНАЧИТЕЛЬНОЕ УВЕЛИЧЕНИЕ ИКОНКИ) */
-    .role-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
-    .role-card:hover .card-icon img, .role-card:hover .card-icon svg { 
-      transform: translateY(-4px) scale(1.35); 
-      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6)); 
-    }
+    /* =========================================
+       9. ДОКУМЕНТ (ШАГ 4) И ПОДПИСЬ
+       ========================================= */
+    .document-paper { background: #f3e9d2; background-image: radial-gradient(circle at 15% 25%, rgba(0,0,0,0.02) 0%, transparent 40%), radial-gradient(circle at 85% 75%, rgba(0,0,0,0.02) 0%, transparent 40%); color: #1e293b; padding: 50px 40px; border-radius: 4px; box-shadow: inset 0 0 60px rgba(139, 69, 19, 0.15), 0 20px 50px rgba(0,0,0,0.6); font-family: 'Times New Roman', serif; position: relative; margin-bottom: 30px; }
+    .doc-header { text-align: center; font-family: 'Cinzel', serif; font-size: 26px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 30px; letter-spacing: 1px; color: #0f172a; }
+    .doc-body { font-size: 17px; line-height: 1.8; margin-bottom: 40px; }
+    .doc-field { font-weight: bold; color: #7f1d1d; border-bottom: 2px solid #64748b; padding: 0 5px; font-style: italic; display: inline-block; min-width: 50px; text-align: center; }
+    .signature-area { margin-top: 40px; display: flex; flex-direction: column; align-items: flex-end; }
+    .signature-label { font-size: 16px; font-style: italic; color: #475569; margin-bottom: 10px; }
+    .signature-canvas { background: transparent; border-bottom: 2px dashed #334155; cursor: crosshair !important; width: 100%; max-width: 350px; height: 120px; transition: background 0.3s; }
+    .signature-canvas:hover { background: rgba(0,0,0,0.02); }
+    .clear-btn { font-size: 13px; color: #64748b; cursor: pointer; border: none; background: transparent; margin-top: 8px; text-decoration: underline; font-family: 'Montserrat', sans-serif; font-weight: 600; padding: 5px; }
+    .clear-btn:hover { color: #0f172a; }
 
-    /* --- АНИМАЦИЯ ВРАЩЕНИЯ МЕХАНИЗМА CREATE --- */
-    @keyframes spinGearSelected {
-      from { transform: translateY(-4px) scale(1.35) rotate(0deg); }
-      to { transform: translateY(-4px) scale(1.35) rotate(360deg); }
-    }
+    /* =========================================
+       10. КНОПКИ И СТАТУС
+       ========================================= */
+    .form-actions { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); }
+    .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 15px 30px; border-radius: var(--radius-md); font-weight: 700; transition: all 0.3s; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+    .btn-next { background: #fff; color: #000; padding: 15px 40px; border-radius: var(--radius-md); font-weight: 800; font-size: 16px; border: none; box-shadow: 0 0 20px rgba(255,255,255,0.2); transition: all 0.3s; }
+    .btn-next:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,255,255,0.4); }
 
-    /* ИНЖЕНЕР CREATE (Латунь / Золото) */
-    .role-card.create-card:hover .card-icon svg {
-      transform: translateY(-4px) scale(1.35) rotate(45deg); /* Слегка проворачивается при наведении */
-    }
-    .role-card:has(input[value="Инженер-Create"]:checked) { border-color: #f5a623; background: rgba(245, 166, 35, 0.05); box-shadow: 0 8px 20px rgba(245, 166, 35, 0.15); transform: translateY(-3px); }
-    .role-card:has(input[value="Инженер-Create"]:checked) .card-icon { background: rgba(245, 166, 35, 0.15); border-color: #f5a623; }
-    .role-card:has(input[value="Инженер-Create"]:checked) .card-icon svg { 
-      animation: spinGearSelected 4s linear infinite; /* Бесконечно крутится при выборе */
-      filter: drop-shadow(0 0 15px rgba(245, 166, 35, 0.8)); 
-    }
-    .role-card:has(input[value="Инженер-Create"]:checked)::before { background: #f5a623; border-color: #f5a623; box-shadow: inset 0 0 0 3px #0f172a, 0 0 10px rgba(245, 166, 35, 0.5); }
+    .status-box { padding: 20px; border-radius: 16px; margin-top: 20px; text-align: center; font-weight: 700; display: none; animation: slideUp 0.5s ease; font-family: 'Montserrat', sans-serif;}
+    .status-box.ok { display: block; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+    .status-box.err { display: block; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ДОБЫТЧИК РЕСУРСОВ (Циан) */
-    .role-card:has(input[value="Добытчик ресурсов"]:checked) { border-color: #06b6d4; background: rgba(6, 182, 212, 0.05); box-shadow: 0 8px 20px rgba(6, 182, 212, 0.1); transform: translateY(-3px); }
-    .role-card:has(input[value="Добытчик ресурсов"]:checked) .card-icon { background: rgba(6, 182, 212, 0.15); border-color: #06b6d4; }
-    .role-card:has(input[value="Добытчик ресурсов"]:checked) .card-icon img { transform: scale(1.25); filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.8)); }
-    .role-card:has(input[value="Добытчик ресурсов"]:checked)::before { background: #06b6d4; border-color: #06b6d4; box-shadow: inset 0 0 0 3px #0f172a, 0 0 10px rgba(6, 182, 212, 0.5); }
-
-    /* СТРОИТЕЛЬ (Изумрудный - изменен цвет, чтобы не сливаться с Create) */
-    .role-card:has(input[value="Строитель"]:checked) { border-color: #10b981; background: rgba(16, 185, 129, 0.05); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.1); transform: translateY(-3px); }
-    .role-card:has(input[value="Строитель"]:checked) .card-icon { background: rgba(16, 185, 129, 0.15); border-color: #10b981; }
-    .role-card:has(input[value="Строитель"]:checked) .card-icon img { transform: scale(1.25); filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8)); }
-    .role-card:has(input[value="Строитель"]:checked)::before { background: #10b981; border-color: #10b981; box-shadow: inset 0 0 0 3px #0f172a, 0 0 10px rgba(16, 185, 129, 0.5); }
-
-    /* АРХИТЕКТОР (Снежно-белый) */
-    .role-card:has(input[value="Архитектор"]:checked) { border-color: #f8fafc; background: rgba(248, 250, 252, 0.05); box-shadow: 0 8px 20px rgba(248, 250, 252, 0.1); transform: translateY(-3px); }
-    .role-card:has(input[value="Архитектор"]:checked) .card-icon { background: rgba(248, 250, 252, 0.15); border-color: #f8fafc; }
-    .role-card:has(input[value="Архитектор"]:checked) .card-icon img { transform: scale(1.25); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)); }
-    .role-card:has(input[value="Архитектор"]:checked)::before { background: #f8fafc; border-color: #f8fafc; box-shadow: inset 0 0 0 3px #0f172a, 0 0 10px rgba(255, 255, 255, 0.5); }
-
-    /* ГИД (Синий) */
-    .role-card:has(input[value="Гид"]:checked) { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1); transform: translateY(-3px); }
-    .role-card:has(input[value="Гид"]:checked) .card-icon { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
-    .role-card:has(input[value="Гид"]:checked) .card-icon img { transform: scale(1.25); filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.8)); }
-    .role-card:has(input[value="Гид"]:checked)::before { background: #3b82f6; border-color: #3b82f6; box-shadow: inset 0 0 0 3px #0f172a, 0 0 10px rgba(59, 130, 246, 0.5); border-radius: 6px; }
-    
-    .role-card:has(input[type="checkbox"])::before { border-radius: 6px; }
-
-    .status-box { display: none; padding: 18px 24px; border-radius: 12px; font-size: 15px; font-weight: 500; animation: fadeUp 0.3s ease; }
-    .status-box.ok { display: block; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
-    .status-box.err { display: block; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
-    
-    .actions { display: flex; gap: 20px; margin-top: 10px; }
-    .actions .btn { flex: 1; }
-
+    /* Адаптив */
     @media (max-width: 768px) {
-      .container { padding: 20px 10px; }
-      .hero-card { padding: 40px 20px; }
-      .hero h1 { font-size: 38px; }
-      .hero-subtitle { font-size: 17px; }
-      .panel-head { padding: 30px 24px 20px; }
-      .panel-head h2 { font-size: 26px; }
-      .panel-body { padding: 24px; }
-      .grid-2, .cards-grid { grid-template-columns: 1fr; }
-      .actions { flex-direction: column; }
+      .hero h1 { font-size: 40px; }
+      .input-grid { grid-template-columns: 1fr; }
+      .form-step { padding: 30px 20px; }
+      .steps-nav::before { display: none; }
+      .steps-nav { flex-direction: column; gap: 20px; align-items: center; padding: 0; }
+      .role-content { flex-direction: column; text-align: center; }
+      .role-header { flex-direction: column; }
+      .role-card:has(input:checked) { transform: translateY(-5px); }
+      .document-paper { padding: 30px 20px; }
+      .signature-area { align-items: center; }
     }
   </style>
 </head>
 <body>
 
-  <div class="bg-container">
-    <div class="aurora-blob blob-1"></div>
-    <div class="aurora-blob blob-2"></div>
+  <div class="custom-cursor" id="custom-cursor"></div>
+  <div class="cursor-dot" id="cursor-dot"></div>
+
+  <div id="preloader">
+    <div class="loader-rune">
+      <svg viewBox="0 0 100 100" fill="none" stroke="var(--accent-ice)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <path class="loader-path" d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 10 L50 50 L90 70 M10 30 L50 50 M10 70 L50 50"/>
+      </svg>
+    </div>
+    <div class="loader-text">FROSTHAVEN</div>
   </div>
-  <div class="snow" id="snow"></div>
 
-  <div class="container">
-    
-    <!-- ГЛАВНОЕ МЕНЮ -->
-    <section class="hero" id="menuSection">
-      <div class="hero-card glass">
-        <div class="elegant-corner ec-tl"></div>
-        <div class="elegant-corner ec-tr"></div>
-        <div class="elegant-corner ec-bl"></div>
-        <div class="elegant-corner ec-br"></div>
-        <div class="card-top-glow"></div>
+  <div class="bg-gradient"></div>
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+  <canvas id="bg-canvas"></canvas>
 
-        <div class="eyebrow-badge">
-          <span class="live-dot"></span>
-          Набор открыт
+  <nav id="navbar">
+    <div class="container nav-inner">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        FROSTHAVEN
+      </div>
+      <div class="nav-links">
+        <a href="#hero" class="hoverable">Главная</a>
+        <a href="#apply" class="hoverable">Заявка</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content glass-panel tilt-element">
+        <div class="floating-star hoverable">
+          <div class="star-glow"></div>
+          <div class="star-rings"></div>
+          <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png" alt="Звезда">
         </div>
-
-        <div class="hero-mc-item">
-          <div class="item-glow"></div>
-          <div class="item-sphere"></div>
-          <div class="magic-ring ring-1"></div>
-          <div class="magic-ring ring-2"></div>
-          <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png" alt="Звезда Фростхевена">
-        </div>
-        
-        <h1 class="text-gradient drop-shadow-glow">Фростхевен</h1>
-        
-        <div class="hero-divider">
-          <div class="line"></div>
-          <div class="diamond"></div>
-          <div class="line"></div>
-        </div>
-
-        <p class="hero-subtitle">Оплот жизни среди вечной мерзлоты.</p>
-        <p class="hero-desc">Снежные пустоши ждут. Выберите свой путь, докажите свою полезность и станьте частью ледяной легенды города.</p>
-        
-        <button class="btn btn-primary pulse-btn" id="openApplicationBtn">
-          <span>Начать заполнение</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <h1 class="title-cinzel text-gradient">Фростхевен</h1>
+        <p>Эпоха механизмов и вечной мерзлоты. Выбери свой путь, докажи свою полезность и стань частью великого города.</p>
+        <button class="btn hoverable" onclick="document.getElementById('apply').scrollIntoView();">
+          <span>Начать Заполнение</span>
         </button>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- АНКЕТА -->
-    <section class="app" id="applicationSection">
-      <div class="topbar">
-        <div class="badge">Форма активна</div>
-        <button class="btn btn-secondary" id="backToMenuBtn" style="padding: 10px 20px; font-size: 13px;">Назад</button>
-      </div>
-
-      <div class="glass">
-        <div class="panel-head">
-          <h2 class="text-gradient">Анкета жителя</h2>
-          <p>Заполните все поля максимально подробно. Заявка будет передана напрямую Мэрии Фростхевена.</p>
+  <section class="application-section" id="apply">
+    <div class="container">
+      <div class="glass-panel" style="max-width: 900px; margin: 0 auto;">
+        
+        <div class="steps-nav" style="padding-top: 40px;">
+          <div class="step-indicator active" id="indicator-1"><div class="step-dot">1</div><div class="step-label">Идентификация</div></div>
+          <div class="step-indicator" id="indicator-2"><div class="step-dot">2</div><div class="step-label">Профессия</div></div>
+          <div class="step-indicator" id="indicator-3"><div class="step-dot">3</div><div class="step-label">Мотивация</div></div>
+          <div class="step-indicator" id="indicator-4"><div class="step-dot">4</div><div class="step-label">Договор</div></div>
         </div>
 
-        <div class="panel-body">
-          <form id="form">
-            <input type="text" id="website" name="website" aria-hidden="true" tabindex="-1" style="position:absolute; opacity:0; pointer-events:none;" />
-            
-            <div class="grid-2 form-group">
-              <div>
-                <div class="label-row"><label>Игровой Никнейм</label><span class="hint">Обязательно</span></div>
-                <div class="input-wrapper">
-                  <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <input id="nickname" type="text" placeholder="Например: ShadowFox" required minlength="3" maxlength="32" autocomplete="off" />
-                </div>
-              </div>
-              
-              <div>
-                <div class="label-row"><label>Дата входа на СПК</label><span class="hint">Обязательно</span></div>
-                <div class="input-wrapper">
-                  <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                  <input type="date" id="date" required />
-                </div>
-              </div>
-            </div>
+        <div class="form-wrapper">
+          <form id="frosthaven-form">
+            <input type="text" id="website" style="display:none;">
 
-            <div class="role-section form-group">
-              <h3>Основная специализация</h3>
-              <p>Выберите одну главную роль, в которой вы наиболее эффективны для города.</p>
-              <div class="cards-grid">
-                
-                <!-- ОБНОВЛЕННАЯ КАРТОЧКА ИНЖЕНЕРА CREATE СО ВСТРОЕННЫМ ВЕКТОРНЫМ SVG -->
-                <label class="role-card create-card">
-                  <input type="radio" name="job" value="Инженер-Create" required />
-                  <div class="card-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f5a623" stroke="#b4781a" stroke-width="1.5">
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                      <circle cx="12" cy="12" r="3" fill="#000" fill-opacity="0.4"></circle>
-                    </svg>
+            <!-- ШАГ 1 -->
+            <div class="form-step active" id="step-1">
+              <h2 class="step-title text-gradient">Личные Данные</h2>
+              <p class="step-desc">Введите базовую информацию для внесения в реестр.</p>
+              
+              <div class="input-grid">
+                <div class="input-group">
+                  <label>Никнейм <span class="hint">Обязательно</span></label>
+                  <div class="input-wrapper hoverable">
+                    <svg class="input-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="nickname" placeholder="ShadowFox" required minlength="3">
                   </div>
-                  <div class="card-info"><strong>Инженер Create</strong><span>Механизмы и заводы</span></div>
-                </label>
-
-                <label class="role-card">
-                  <input type="radio" name="job" value="Добытчик ресурсов" required />
-                  <div class="card-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_pickaxe.png" alt="Кирка"></div>
-                  <div class="card-info"><strong>Добытчик ресурсов</strong><span>Шахты, фермы, гринд</span></div>
-                </label>
-                <label class="role-card">
-                  <input type="radio" name="job" value="Строитель" required />
-                  <div class="card-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/stone_bricks.png" alt="Кирпичи"></div>
-                  <div class="card-info"><strong>Строитель</strong><span>Возведение зданий по плану</span></div>
-                </label>
-                <label class="role-card">
-                  <input type="radio" name="job" value="Архитектор" required />
-                  <div class="card-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/filled_map.png" alt="Карта"></div>
-                  <div class="card-info"><strong>Архитектор</strong><span>Проектирование и дизайн</span></div>
-                </label>
-              </div>
-            </div>
-
-            <div class="role-section form-group">
-              <h3>Дополнительные задачи</h3>
-              <p>Отметьте, если готовы помогать городу в других сферах (можно пропустить).</p>
-              <div class="cards-grid">
-                <label class="role-card">
-                  <input type="checkbox" name="extraJob" value="Гид" />
-                  <div class="card-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/compass_16.png" alt="Компас"></div>
-                  <div class="card-info"><strong>Городской Гид</strong><span>Экскурсии и помощь новичкам</span></div>
-                </label>
-              </div>
-            </div>
-
-            <div class="grid-2 form-group">
-              <div>
-                <div class="label-row"><label>Прайм-тайм</label><span class="hint">Часов в день</span></div>
-                <div class="input-wrapper">
-                  <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  <input id="time" type="text" placeholder="Например: 2-4 часа" required maxlength="50" autocomplete="off" />
+                </div>
+                <div class="input-group">
+                  <label>Дата входа <span class="hint">На сервер СПК</span></label>
+                  <div class="input-wrapper hoverable">
+                    <svg class="input-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <input type="date" id="date" required>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label>Связь <span class="hint">Discord / TG</span></label>
+                  <div class="input-wrapper hoverable">
+                    <svg class="input-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    <input type="text" id="contact" placeholder="@username" required>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label>Прайм-тайм <span class="hint">Часов в день</span></label>
+                  <div class="input-wrapper hoverable">
+                    <svg class="input-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <input type="text" id="time" placeholder="2-4 часа" required>
+                  </div>
                 </div>
               </div>
-              
-              <div>
-                <div class="label-row"><label>Связь (Discord/TG)</label><span class="hint">Обязательно</span></div>
-                <div class="input-wrapper">
-                  <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
-                  <input id="contact" type="text" placeholder="@username" required maxlength="50" autocomplete="off" />
+              <div class="form-actions" style="justify-content: flex-end;">
+                <button type="button" class="btn-next hoverable" onclick="nextStep(1)">Далее &#8594;</button>
+              </div>
+            </div>
+
+            <!-- ШАГ 2 -->
+            <div class="form-step" id="step-2">
+              <h2 class="step-title text-gradient">Специализация</h2>
+              <p class="step-desc">Выберите вашу главную роль в механизме города.</p>
+
+              <div class="roles-list">
+                <label class="role-card hoverable" style="--card-color: #f5a623;">
+                  <input type="radio" name="job" value="Инженер-Create" required>
+                  <div class="role-bg"></div>
+                  <div class="role-content">
+                    <div class="role-icon">
+                      <svg viewBox="0 0 24 24" fill="#f5a623" stroke="#b4781a" stroke-width="1.5"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path><circle cx="12" cy="12" r="3" fill="#000"></circle></svg>
+                    </div>
+                    <div class="role-info">
+                      <div class="role-header"><strong>Инженер Create</strong><span class="role-tag" style="background: rgba(245,166,35,0.15); color: #f5a623;">Основа Экономики</span></div>
+                      <span class="desc">Постройка и обслуживание базовых механизмов и заводов города.</span>
+                    </div>
+                    <div class="role-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  </div>
+                </label>
+
+                <label class="role-card hoverable" style="--card-color: #ef4444;">
+                  <input type="radio" name="job" value="Инженер-TFMG" required>
+                  <div class="role-bg"></div>
+                  <div class="role-content">
+                    <div class="role-icon">
+                      <svg viewBox="0 0 24 24" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.5"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path><circle cx="12" cy="12" r="3" fill="#000"></circle></svg>
+                    </div>
+                    <div class="role-info">
+                      <div class="role-header"><strong>Инженер TFMG</strong><span class="role-tag" style="background: rgba(239,68,68,0.15); color: #ef4444;">Авангард Индустрии</span></div>
+                      <span class="desc">Проектирование мега-структур. <span style="color: #ef4444; font-weight: 700; font-style: italic;">The factory must grow.</span></span>
+                    </div>
+                    <div class="role-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  </div>
+                </label>
+
+                <label class="role-card hoverable" style="--card-color: #22d3ee;">
+                  <input type="radio" name="job" value="Добытчик ресурсов">
+                  <div class="role-bg"></div>
+                  <div class="role-content">
+                    <div class="role-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_pickaxe.png" alt="Кирка"></div>
+                    <div class="role-info">
+                      <div class="role-header"><strong>Добытчик</strong><span class="role-tag" style="background: rgba(34,211,238,0.15); color: #22d3ee;">Высокий спрос</span></div>
+                      <span class="desc">Снабжение города рудой, работа в шахтах и на фермах.</span>
+                    </div>
+                    <div class="role-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  </div>
+                </label>
+
+                <label class="role-card hoverable" style="--card-color: #10b981;">
+                  <input type="radio" name="job" value="Перестройщик">
+                  <div class="role-bg"></div>
+                  <div class="role-content">
+                    <div class="role-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/stone_bricks.png" alt="Блоки"></div>
+                    <div class="role-info">
+                      <div class="role-header"><strong>Перестройщик</strong><span class="role-tag" style="background: rgba(16,185,129,0.15); color: #10b981;">Рабочие руки</span></div>
+                      <span class="desc">Возведение зданий по готовым проектам и схемам.</span>
+                    </div>
+                    <div class="role-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  </div>
+                </label>
+
+                <label class="role-card hoverable" style="--card-color: #f8fafc;">
+                  <input type="radio" name="job" value="Архитектор">
+                  <div class="role-bg"></div>
+                  <div class="role-content">
+                    <div class="role-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/filled_map.png" alt="Карта"></div>
+                    <div class="role-info">
+                      <div class="role-header"><strong>Архитектор</strong><span class="role-tag" style="background: rgba(248,250,252,0.15); color: #f8fafc;">Проектировщик</span></div>
+                      <span class="desc">Проектирование города, создание чертежей и стиля.</span>
+                    </div>
+                    <div class="role-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  </div>
+                </label>
+
+                <div class="section-divider">Дополнительные Обязанности</div>
+
+                <label class="role-card hoverable" style="--card-color: #3b82f6;">
+                  <input type="checkbox" name="extraJob" value="Гид">
+                  <div class="role-bg"></div>
+                  <div class="role-content">
+                    <div class="role-icon"><img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/compass_16.png" alt="Компас"></div>
+                    <div class="role-info">
+                      <div class="role-header"><strong>Городской Гид</strong><span class="role-tag" style="background: rgba(59,130,246,0.15); color: #3b82f6;">По Желанию</span></div>
+                      <span class="desc">Проведение экскурсий и помощь новичкам в адаптации.</span>
+                    </div>
+                    <div class="role-checkbox"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  </div>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn-secondary hoverable" onclick="prevStep(2)">&#8592; Назад</button>
+                <button type="button" class="btn-next hoverable" onclick="nextStep(2)">Далее &#8594;</button>
+              </div>
+            </div>
+
+            <!-- ШАГ 3 -->
+            <div class="form-step" id="step-3">
+              <h2 class="step-title text-gradient">Мотивация</h2>
+              <p class="step-desc">Расскажите, почему мы должны принять вас в ряды жителей.</p>
+              <div class="input-group">
+                <label>О себе и целях <span class="hint">Минимум 20 символов</span></label>
+                <div class="input-wrapper textarea-wrapper hoverable">
+                  <svg class="input-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  <textarea id="about" placeholder="Я хочу вступить во Фростхевен, потому что..." required minlength="20"></textarea>
                 </div>
               </div>
-            </div>
-
-            <div class="form-group">
-              <div class="label-row"><label>Мотивация</label><span class="hint">Мин. 20 символов</span></div>
-              <div class="input-wrapper textarea-wrapper">
-                <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                <textarea id="about" placeholder="Расскажите, почему вы выбрали Фростхевен и чем планируете заниматься в городе..." required minlength="20" maxlength="1500"></textarea>
+              <div class="form-actions">
+                <button type="button" class="btn-secondary hoverable" onclick="prevStep(3)">&#8592; Назад</button>
+                <button type="button" class="btn-next hoverable" onclick="nextStep(3)">Далее &#8594;</button>
               </div>
             </div>
 
-            <div class="form-group">
+            <!-- ШАГ 4 -->
+            <div class="form-step" id="step-4">
+              <h2 class="step-title text-gradient">Официальный Договор</h2>
+              <p class="step-desc">Ознакомьтесь с документом и поставьте свою подпись для завершения регистрации.</p>
+
+              <div class="document-paper">
+                <div class="doc-header">ДОГОВОР О РЕЗИДЕНТСТВЕ В ГОРОДЕ ФРОСТХЕВЕН</div>
+                
+                <div class="doc-body">
+                  Я, <span id="doc-nickname" class="doc-field"></span>, сим подтверждаю своё намерение вступить в ряды граждан великого города-механизма Фростхевен.<br><br>
+                  Моя главная специализация — <span id="doc-job" class="doc-field"></span>. Обязуюсь добросовестно выполнять возложенные на меня обязанности во имя индустриального прогресса и процветания города.<br>
+                  Дополнительные обязанности: <span id="doc-extra" class="doc-field"></span>.<br><br>
+                  Мой регулярный прайм-тайм составляет <span id="doc-time" class="doc-field"></span>, а для экстренной и штатной связи со мной утверждён канал <span id="doc-contact" class="doc-field"></span>.<br><br>
+                  <span style="font-size: 15px; color: #475569;">Причина моего вступления в город: <br>"<span id="doc-about" style="font-style: italic; color: #1e293b;"></span>"</span><br><br>
+                  Своей подписью ниже я клянусь соблюдать все законы Механизма, уважать труд других инженеров и нести полную ответственность за свои действия на территории Фростхевена.
+                </div>
+
+                <div class="signature-area">
+                   <div class="signature-label">Личная подпись гражданина:</div>
+                   <canvas id="signature-pad" class="signature-canvas hoverable" width="350" height="120"></canvas>
+                   <button type="button" id="clear-signature" class="clear-btn hoverable">Очистить чернила</button>
+                </div>
+              </div>
+
               <div id="status" class="status-box"></div>
-              <div class="actions">
-                <button class="btn btn-primary" type="submit" id="submitBtn">Отправить заявку</button>
-                <button class="btn btn-secondary" type="button" id="clearBtn" style="flex: 0.3;">Очистить форму</button>
+
+              <div class="form-actions">
+                <button type="button" class="btn-secondary hoverable" onclick="prevStep(4)">&#8592; Назад</button>
+                <button type="submit" id="submitBtn" class="btn-next hoverable" style="background: var(--accent-ice); color: #020617; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);">Подписать и Отправить</button>
               </div>
             </div>
 
           </form>
         </div>
       </div>
-    </section>
-
-  </div>
+    </div>
+  </section>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const snow = document.getElementById('snow');
-      const fragment = document.createDocumentFragment();
-      for (let i = 0; i < 40; i++) {
-        const flake = document.createElement('span');
-        const size = Math.random() * 3 + 2;
-        flake.style.width = `${size}px`; flake.style.height = `${size}px`;
-        flake.style.left = `${Math.random() * 100}%`;
-        flake.style.opacity = Math.random() * 0.6 + 0.2;
-        flake.style.animationDuration = `${Math.random() * 7 + 5}s`;
-        flake.style.animationDelay = `${Math.random() * 5}s`;
-        fragment.appendChild(flake);
+      // Прелоадер
+      setTimeout(() => { document.getElementById('preloader').classList.add('hidden'); }, 1200);
+
+      // Курсор
+      const cursor = document.getElementById('custom-cursor');
+      const dot = document.getElementById('cursor-dot');
+      let mouseX = 0, mouseY = 0, dotX = 0, dotY = 0;
+      window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+      function animateDot() { dotX += (mouseX - dotX) * 0.2; dotY += (mouseY - dotY) * 0.2; dot.style.left = dotX + 'px'; dot.style.top = dotY + 'px'; requestAnimationFrame(animateDot); }
+      animateDot();
+      document.querySelectorAll('.hoverable, button, input, textarea, a, label, canvas').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
+
+      // Навигация
+      const navbar = document.getElementById('navbar');
+      window.addEventListener('scroll', () => { if(window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled'); });
+
+      // Canvas Снег
+      const canvasBg = document.getElementById('bg-canvas');
+      const ctxBg = canvasBg.getContext('2d');
+      let particles = [], width, height;
+      function resize() { width = window.innerWidth; height = window.innerHeight; canvasBg.width = width; canvasBg.height = height; }
+      window.addEventListener('resize', resize); resize();
+      class Particle {
+        constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.size = Math.random() * 2 + 0.5; this.speedY = Math.random() * 1 + 0.5; this.speedX = Math.random() * 0.5 - 0.25; this.opacity = Math.random() * 0.5 + 0.1; }
+        update() { this.y += this.speedY; this.x += this.speedX; let dx = mouseX - this.x, dy = mouseY - this.y; if (Math.sqrt(dx * dx + dy * dy) < 100) { this.x -= dx * 0.05; this.y -= dy * 0.05; } if (this.y > height) { this.y = -10; this.x = Math.random() * width; } if (this.x > width) this.x = 0; else if (this.x < 0) this.x = width; }
+        draw() { ctxBg.beginPath(); ctxBg.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctxBg.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; ctxBg.fill(); }
       }
-      snow.appendChild(fragment);
+      for(let i = 0; i < 100; i++) particles.push(new Particle());
+      function animateParticles() { ctxBg.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
+      animateParticles();
 
-      const menuSection = document.getElementById('menuSection');
-      const appSection = document.getElementById('applicationSection');
-      
-      document.getElementById('openApplicationBtn').addEventListener('click', () => {
-        menuSection.classList.add('hidden');
-        setTimeout(() => {
-          menuSection.style.display = 'none';
-          appSection.classList.add('active');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 400);
-      });
+      // Canvas Подпись
+      const signaturePad = document.getElementById('signature-pad');
+      const ctxPad = signaturePad.getContext('2d');
+      let isDrawing = false;
+      let isSigned = false;
 
-      document.getElementById('backToMenuBtn').addEventListener('click', () => {
-        appSection.classList.remove('active');
-        setTimeout(() => {
-          menuSection.style.display = 'flex';
-          setTimeout(() => menuSection.classList.remove('hidden'), 50);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 400);
-      });
+      ctxPad.lineWidth = 3;
+      ctxPad.strokeStyle = '#0f172a'; // Чернила
+      ctxPad.lineCap = 'round';
+      ctxPad.lineJoin = 'round';
 
-      const WEBHOOK_URL = 'https://frost-heaven-citywork.vercel.app/api/send-to-telegram';
-      const STORAGE_KEY = 'frosthaven_v8_draft';
-      const fields = {
-        nickname: document.getElementById('nickname'),
-        date: document.getElementById('date'),
-        time: document.getElementById('time'),
-        contact: document.getElementById('contact'),
-        about: document.getElementById('about')
+      function getPointerPos(e) {
+        const rect = signaturePad.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: (clientX - rect.left) * (signaturePad.width / rect.width), y: (clientY - rect.top) * (signaturePad.height / rect.height) };
+      }
+      function startDraw(e) { e.preventDefault(); isDrawing = true; isSigned = true; const pos = getPointerPos(e); ctxPad.beginPath(); ctxPad.moveTo(pos.x, pos.y); }
+      function draw(e) { if (!isDrawing) return; e.preventDefault(); const pos = getPointerPos(e); ctxPad.lineTo(pos.x, pos.y); ctxPad.stroke(); }
+      function endDraw() { isDrawing = false; ctxPad.beginPath(); }
+
+      signaturePad.addEventListener('mousedown', startDraw); signaturePad.addEventListener('mousemove', draw); signaturePad.addEventListener('mouseup', endDraw); signaturePad.addEventListener('mouseout', endDraw);
+      signaturePad.addEventListener('touchstart', startDraw, {passive: false}); signaturePad.addEventListener('touchmove', draw, {passive: false}); signaturePad.addEventListener('touchend', endDraw);
+
+      document.getElementById('clear-signature').addEventListener('click', () => { ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false; });
+
+      // Навигация по шагам
+      const dateInput = document.getElementById('date');
+      dateInput.max = new Date().toISOString().split('T')[0];
+
+      window.nextStep = function(currentStep) {
+        if (currentStep === 1) {
+          const inputs = ['nickname', 'date', 'contact', 'time'].map(id => document.getElementById(id));
+          for(let el of inputs) { if(!el.checkValidity()) { el.reportValidity(); return; } }
+        }
+        if (currentStep === 2 && !document.querySelector('[name="job"]:checked')) { alert("Необходимо выбрать основную специализацию!"); return; }
+        if (currentStep === 3) {
+          const about = document.getElementById('about');
+          if(!about.checkValidity()) { about.reportValidity(); return; }
+          
+          document.getElementById('doc-nickname').textContent = document.getElementById('nickname').value;
+          document.getElementById('doc-job').textContent = document.querySelector('[name="job"]:checked').value;
+          const extraJobs = Array.from(document.querySelectorAll('[name="extraJob"]:checked')).map(el => el.value);
+          document.getElementById('doc-extra').textContent = extraJobs.length ? extraJobs.join(', ') : 'Отсутствуют';
+          document.getElementById('doc-time').textContent = document.getElementById('time').value;
+          document.getElementById('doc-contact').textContent = document.getElementById('contact').value;
+          document.getElementById('doc-about').textContent = document.getElementById('about').value;
+        }
+
+        document.getElementById(`step-${currentStep}`).classList.remove('active'); document.getElementById(`step-${currentStep}`).classList.add('prev');
+        document.getElementById(`step-${currentStep + 1}`).classList.remove('prev'); document.getElementById(`step-${currentStep + 1}`).classList.add('active');
+        document.getElementById(`indicator-${currentStep}`).classList.add('completed'); document.getElementById(`indicator-${currentStep + 1}`).classList.add('active');
       };
+
+      window.prevStep = function(currentStep) {
+        document.getElementById(`step-${currentStep}`).classList.remove('active'); document.getElementById(`step-${currentStep - 1}`).classList.remove('prev'); document.getElementById(`step-${currentStep - 1}`).classList.add('active');
+        document.getElementById(`indicator-${currentStep}`).classList.remove('active'); document.getElementById(`indicator-${currentStep - 1}`).classList.remove('completed');
+      };
+
+      // Отправка формы
+      const form = document.getElementById('frosthaven-form');
       const submitBtn = document.getElementById('submitBtn');
       const statusBox = document.getElementById('status');
 
-      fields.date.setAttribute('max', new Date().toISOString().split('T')[0]);
-
-      try {
-        const draft = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (draft) {
-          Object.keys(fields).forEach(k => { if (fields[k]) fields[k].value = draft[k] || ''; });
-          document.querySelectorAll('[name="job"]').forEach(el => el.checked = (el.value === draft.job));
-          document.querySelectorAll('[name="extraJob"]').forEach(el => el.checked = (draft.extraJobs || []).includes(el.value));
-        }
-      } catch (e) {}
-
-      document.getElementById('clearBtn').addEventListener('click', () => {
-        if(confirm('Очистить форму? Все введенные данные будут удалены.')) {
-          document.getElementById('form').reset();
-          localStorage.removeItem(STORAGE_KEY);
-          statusBox.className = 'status-box';
-        }
-      });
-
-      document.getElementById('form').addEventListener('submit', async (e) => {
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (document.getElementById('website').value !== '') return;
-
-        const data = {
-          nickname: fields.nickname.value.trim(),
-          date: fields.date.value,
-          job: document.querySelector('[name="job"]:checked')?.value || '',
-          extraJobs: Array.from(document.querySelectorAll('[name="extraJob"]:checked')).map(el => el.value),
-          time: fields.time.value.trim(),
-          contact: fields.contact.value.trim(),
-          about: fields.about.value.trim()
-        };
+        if (document.getElementById('website').value !== '') return; // Антиспам
+        
+        if (!isSigned) {
+          alert("Договор недействителен без вашей подписи! Пожалуйста, распишитесь на документе."); return;
+        }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Отправка данных...';
+        submitBtn.innerHTML = 'Отправка...';
         statusBox.className = 'status-box';
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+        // Генерируем картинку подписи (добавляем цвет фона "бумаги", чтобы в ТГ не было черного фона)
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = signaturePad.width;
+        tempCanvas.height = signaturePad.height;
+        const tCtx = tempCanvas.getContext('2d');
+        tCtx.fillStyle = '#f3e9d2'; // Цвет бумаги
+        tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tCtx.drawImage(signaturePad, 0, 0);
+        
+        const signatureDataURL = tempCanvas.toDataURL('image/png');
+
+        const data = {
+          nickname: document.getElementById('nickname').value.trim(),
+          date: document.getElementById('date').value,
+          job: document.querySelector('[name="job"]:checked')?.value || '',
+          extraJobs: Array.from(document.querySelectorAll('[name="extraJob"]:checked')).map(el => el.value),
+          time: document.getElementById('time').value.trim(),
+          contact: document.getElementById('contact').value.trim(),
+          about: document.getElementById('about').value.trim(),
+          signature: signatureDataURL // Передаем картинку в Base64
+        };
 
         try {
-          const res = await fetch(WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+          // УБЕДИТЕСЬ, что здесь стоит правильная ссылка на ваш Vercel!
+          const res = await fetch('https://frost-heaven-citywork.vercel.app/api/send-to-telegram', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
           });
-
+          
           if (!res.ok) throw new Error('Сервер недоступен. Попробуйте позже.');
           const result = await res.json();
-          if (!result.ok) throw new Error(result.message || 'Ошибка обработки данных.');
+          if (!result.ok) throw new Error(result.message || 'Ошибка обработки.');
 
           statusBox.className = 'status-box ok';
-          statusBox.textContent = '✔️ Ваша заявка успешно отправлена в Мэрию Фростхевена.';
-          document.getElementById('form').reset();
-          localStorage.removeItem(STORAGE_KEY);
+          statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена в Мэрию!';
+          form.reset(); ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false;
+          submitBtn.innerHTML = 'Успешно';
           
-          submitBtn.innerHTML = 'Заявка доставлена';
-          setTimeout(() => { submitBtn.disabled = false; submitBtn.innerHTML = 'Отправить заявку'; }, 5000);
+          setTimeout(() => {
+            submitBtn.disabled = false; submitBtn.innerHTML = 'Подписать и Отправить';
+            statusBox.style.display = 'none'; prevStep(4); prevStep(3); prevStep(2); 
+          }, 6000);
 
         } catch (err) {
           statusBox.className = 'status-box err';
           statusBox.textContent = '❌ ' + err.message;
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = 'Повторить попытку';
+          submitBtn.disabled = false; submitBtn.innerHTML = 'Повторить отправку';
         }
       });
     });
