@@ -1,74 +1,102 @@
-// Отправка формы
-      const form = document.getElementById('frosthaven-form');
-      const submitBtn = document.getElementById('submitBtn');
-      const statusBox = document.getElementById('status');
+export default async function handler(req, res) {
+  // Настройка CORS (чтобы браузер не блокировал запрос)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (document.getElementById('website').value !== '') return; // Антиспам
-        
-        if (!isSigned) {
-          alert("Договор недействителен без вашей подписи! Пожалуйста, распишитесь на документе."); return;
-        }
+  // Ответ на технический "предзапрос" браузера (Preflight)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Отправка...';
-        statusBox.className = 'status-box';
+  // Защита: принимаем только POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, message: 'Метод не разрешен (только POST)' });
+  }
 
-        // Генерируем картинку подписи
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = signaturePad.width;
-        tempCanvas.height = signaturePad.height;
-        const tCtx = tempCanvas.getContext('2d');
-        tCtx.fillStyle = '#f3e9d2'; // Цвет бумаги
-        tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        tCtx.drawImage(signaturePad, 0, 0);
-        
-        const signatureDataURL = tempCanvas.toDataURL('image/png');
+  try {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
 
-        const data = {
-          nickname: document.getElementById('nickname').value.trim(),
-          date: document.getElementById('date').value,
-          job: document.querySelector('[name="job"]:checked')?.value || '',
-          extraJobs: Array.from(document.querySelectorAll('[name="extraJob"]:checked')).map(el => el.value),
-          time: document.getElementById('time').value.trim(),
-          contact: document.getElementById('contact').value.trim(),
-          about: document.getElementById('about').value.trim(),
-          signature: signatureDataURL
-        };
+    if (!botToken || !chatId) {
+      throw new Error('Токены бота не настроены в Environment Variables на Vercel!');
+    }
 
-        try {
-          // Умный выбор API-пути (избегает ошибок CORS если оба файла лежат на одном сайте)
-          const apiUrl = window.location.hostname.includes('vercel.app') 
-            ? '/api/send-to-telegram' 
-            : 'https://frost-heaven-citywork.vercel.app/api/send-to-telegram';
+    // Читаем данные. Если Vercel прислал строку, делаем из неё JSON
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { nickname, date, job, extraJobs, time, contact, about, signature } = body || {};
 
-          const res = await fetch(apiUrl, {
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify(data)
-          });
-          
-          // Читаем ответ сервера, даже если произошла ошибка, чтобы получить её текст
-          const result = await res.json().catch(() => ({}));
-          
-          if (!res.ok || result.ok === false) {
-            throw new Error(result.message || 'Сервер недоступен. Проверьте логи Vercel.');
-          }
+    if (!signature) {
+      throw new Error('Подпись не была передана.');
+    }
 
-          statusBox.className = 'status-box ok';
-          statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена в Мэрию!';
-          form.reset(); ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false;
-          submitBtn.innerHTML = 'Успешно';
-          
-          setTimeout(() => {
-            submitBtn.disabled = false; submitBtn.innerHTML = 'Подписать и Отправить';
-            statusBox.style.display = 'none'; prevStep(4); prevStep(3); prevStep(2); 
-          }, 6000);
+    // Красивый шаблон сообщения для Telegram
+    const caption = `
+📜 <b>НОВЫЙ ДОГОВОР: ФРОСТХЕВЕН</b> 📜
 
-        } catch (err) {
-          statusBox.className = 'status-box err';
-          statusBox.textContent = '❌ ' + err.message;
-          submitBtn.disabled = false; submitBtn.innerHTML = 'Повторить отправку';
-        }
-      });
+👤 <b>Ник:</b> ${nickname || 'Не указан'}
+📅 <b>Дата захода:</b> ${date || 'Не указана'}
+📞 <b>Связь:</b> ${contact || 'Не указана'}
+⏱ <b>Прайм-тайм:</b> ${time || 'Не указано'}
+
+⚙️ <b>Профессия:</b> ${job || 'Не указана'}
+🔧 <b>Доп. роли:</b> ${extraJobs && extraJobs.length > 0 ? extraJobs.join(', ') : 'Нет'}
+
+💬 <b>Мотивация:</b> 
+<i>"${about || 'Нет'}"</i>
+    `.trim();
+
+    // 1. Превращаем картинку из Base64 обратно в бинарный файл (Node.js Buffer)
+    const base64Data = signature.replace(/^data:image\/\w+;base64,/, "");
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    // 2. Вручную собираем Multipart/form-data (самый надежный способ для бессерверных функций)
+    const boundary = '----FrosthavenBoundary' + Math.random().toString(16).substring(2);
+    const nl = '\r\n';
+    let bodyBuffer = Buffer.alloc(0);
+
+    // Функция-помощник для добавления текстовых полей
+    function appendField(name, value) {
+      bodyBuffer = Buffer.concat([
+        bodyBuffer,
+        Buffer.from(`--${boundary}${nl}Content-Disposition: form-data; name="${name}"${nl}${nl}${value}${nl}`)
+      ]);
+    }
+
+    appendField('chat_id', chatId);
+    appendField('caption', caption);
+    appendField('parse_mode', 'HTML');
+
+    // Функция-помощник для добавления файла (картинки)
+    bodyBuffer = Buffer.concat([
+      bodyBuffer,
+      Buffer.from(`--${boundary}${nl}Content-Disposition: form-data; name="photo"; filename="signature.png"${nl}Content-Type: image/png${nl}${nl}`),
+      imageBuffer,
+      Buffer.from(`${nl}--${boundary}--${nl}`)
+    ]);
+
+    // 3. Отправляем готовые бинарные данные в Telegram
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${boundary}`
+      },
+      body: bodyBuffer
+    });
+
+    const result = await response.json();
+
+    if (result.ok) {
+      return res.status(200).json({ ok: true });
+    } else {
+      console.error("Telegram Error:", result);
+      throw new Error(`Ошибка Telegram: ${result.description}`);
+    }
+
+  } catch (error) {
+    console.error("Backend Error:", error);
+    // Возвращаем ошибку с кодом 400 (или 500), чтобы сайт понял, что случилась проблема
+    return res.status(400).json({ ok: false, message: error.message });
+  }
+}
