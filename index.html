@@ -572,8 +572,8 @@
         };
 
         try {
-          // Гарантированно правильная ссылка для Vercel
-          const apiUrl = window.location.origin + '/api/send-to-telegram';
+          // ЖЕСТКО ЗАДАННАЯ ССЫЛКА НА ТВОЙ СЕРВЕР (Больше не сломается)
+          const apiUrl = 'https://frost-heaven-citywork.vercel.app/api/send-to-telegram';
 
           const res = await fetch(apiUrl, {
             method: 'POST', 
@@ -584,7 +584,9 @@
           let result;
           try { result = await res.json(); } catch(e) { result = {}; }
           
-          if (!res.ok || result.ok === false) throw new Error(result.message || `Ошибка сервера (Код ${res.status}). Убедитесь что залили папку api в Vercel.`);
+          if (!res.ok || result.ok === false) {
+             throw new Error(result.message || `Ошибка 404/405. Убедитесь, что папка "api" загружена в Vercel!`);
+          }
 
           statusBox.className = 'status-box ok'; statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена!';
           form.reset(); ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false; submitBtn.innerHTML = 'Успешно';
