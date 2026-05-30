@@ -10,9 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
 
   <style>
-    /* =========================================
-       1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И НАСТРОЙКИ
-       ========================================= */
+    /* ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ */
     :root {
       --bg-deep: #010409;
       --bg-base: #020617;
@@ -38,16 +36,12 @@
 
     body { font-family: 'Montserrat', sans-serif; color: var(--text-main); background-color: var(--bg-deep); overflow-x: hidden; min-height: 100vh; line-height: 1.6; }
 
-    /* =========================================
-       2. КАСТОМНЫЙ КУРСОР
-       ========================================= */
+    /* КУРСОР */
     .custom-cursor { position: fixed; top: 0; left: 0; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--accent-ice); pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background 0.3s, border-color 0.3s; box-shadow: 0 0 15px var(--accent-ice); }
     .custom-cursor.hover { width: 50px; height: 50px; background: rgba(56, 189, 248, 0.1); border-color: rgba(255, 255, 255, 0.5); backdrop-filter: blur(2px); }
     .cursor-dot { position: fixed; top: 0; left: 0; width: 4px; height: 4px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); box-shadow: 0 0 10px #fff; }
 
-    /* =========================================
-       3. ПРЕЛОАДЕР И ФОН
-       ========================================= */
+    /* ПРЕЛОАДЕР И ФОН */
     #preloader { position: fixed; inset: 0; background: var(--bg-deep); z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease, visibility 1s ease; }
     #preloader.hidden { opacity: 0; visibility: hidden; }
     .loader-rune { width: 80px; height: 80px; animation: float 3s infinite ease-in-out; }
@@ -64,17 +58,13 @@
     .aurora-2 { background: radial-gradient(circle at 90% 60%, #38bdf8, transparent 50%); animation: auroraMove 25s infinite alternate-reverse ease-in-out; }
     @keyframes auroraMove { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.2) translate(10%, -10%); } }
 
-    /* =========================================
-       4. УТИЛИТЫ
-       ========================================= */
+    /* УТИЛИТЫ */
     .container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
     .glass-panel { background: var(--glass-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-top: 1px solid rgba(255,255,255,0.2); box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(255,255,255,0.02); border-radius: var(--radius-xl); }
     .text-gradient { background: linear-gradient(135deg, #ffffff 0%, #bae6fd 50%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; }
     .title-cinzel { font-family: 'Cinzel', serif; font-weight: 800; text-transform: uppercase; }
 
-    /* =========================================
-       5. НАВИГАЦИЯ И ГЛАВНЫЙ ЭКРАН
-       ========================================= */
+    /* НАВИГАЦИЯ И ГЛАВНЫЙ ЭКРАН */
     nav { position: fixed; top: 0; width: 100%; padding: 20px 0; z-index: 100; transition: all 0.4s ease; }
     nav.scrolled { padding: 15px 0; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
     .nav-inner { display: flex; justify-content: space-between; align-items: center; }
@@ -104,9 +94,7 @@
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* =========================================
-       6. АНКЕТА И ПРОГРЕСС-БАР
-       ========================================= */
+    /* АНКЕТА И ПРОГРЕСС-БАР */
     .application-section { padding: 100px 0 150px; position: relative; }
     .steps-nav { display: flex; justify-content: space-between; position: relative; margin-bottom: 60px; padding: 0 40px; }
     .steps-nav::before { content: ''; position: absolute; top: 24px; left: 60px; right: 60px; height: 2px; background: rgba(255,255,255,0.1); z-index: 1; }
@@ -124,9 +112,7 @@
     .step-title { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
     .step-desc { color: var(--text-muted); font-size: 16px; margin-bottom: 40px; }
 
-    /* =========================================
-       7. ПОЛЯ ВВОДА
-       ========================================= */
+    /* ПОЛЯ ВВОДА */
     .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
     .input-group { display: flex; flex-direction: column; gap: 10px; }
     .input-group label { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #cbd5e1; letter-spacing: 1px; display: flex; justify-content: space-between; }
@@ -142,9 +128,7 @@
     textarea { min-height: 150px; resize: none; padding-top: 20px; }
     .textarea-wrapper .input-icon { top: 22px; }
 
-    /* =========================================
-       8. ДИЗАЙН КАРТОЧЕК ПРОФЕССИЙ 
-       ========================================= */
+    /* ДИЗАЙН КАРТОЧЕК ПРОФЕССИЙ */
     .roles-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
     .role-card { position: relative; display: block; border-radius: 20px; background: rgba(15, 23, 42, 0.5); border: 2px solid rgba(255,255,255,0.05); transition: all 0.4s var(--transition-bounce); overflow: hidden; }
     .role-card input { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -174,9 +158,7 @@
     .section-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 30px 0 20px; }
     .section-divider::before, .section-divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0 15px; }
 
-    /* =========================================
-       9. ДОКУМЕНТ (ШАГ 4) И ПОДПИСЬ
-       ========================================= */
+    /* ДОКУМЕНТ (ШАГ 4) И ПОДПИСЬ */
     .document-paper { background: #f3e9d2; background-image: radial-gradient(circle at 15% 25%, rgba(0,0,0,0.02) 0%, transparent 40%), radial-gradient(circle at 85% 75%, rgba(0,0,0,0.02) 0%, transparent 40%); color: #1e293b; padding: 50px 40px; border-radius: 4px; box-shadow: inset 0 0 60px rgba(139, 69, 19, 0.15), 0 20px 50px rgba(0,0,0,0.6); font-family: 'Times New Roman', serif; position: relative; margin-bottom: 30px; }
     .doc-header { text-align: center; font-family: 'Cinzel', serif; font-size: 26px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 30px; letter-spacing: 1px; color: #0f172a; }
     .doc-body { font-size: 17px; line-height: 1.8; margin-bottom: 40px; }
@@ -188,9 +170,7 @@
     .clear-btn { font-size: 13px; color: #64748b; cursor: pointer; border: none; background: transparent; margin-top: 8px; text-decoration: underline; font-family: 'Montserrat', sans-serif; font-weight: 600; padding: 5px; }
     .clear-btn:hover { color: #0f172a; }
 
-    /* =========================================
-       10. КНОПКИ И СТАТУС
-       ========================================= */
+    /* КНОПКИ И СТАТУС */
     .form-actions { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); }
     .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 15px 30px; border-radius: var(--radius-md); font-weight: 700; transition: all 0.3s; }
     .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
@@ -202,6 +182,7 @@
     .status-box.err { display: block; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* Адаптив */
     @media (max-width: 768px) {
       .hero h1 { font-size: 40px; }
       .input-grid { grid-template-columns: 1fr; }
@@ -473,60 +454,137 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Прелоадер
       setTimeout(() => { document.getElementById('preloader').classList.add('hidden'); }, 1200);
 
+      // Курсор
       const cursor = document.getElementById('custom-cursor');
       const dot = document.getElementById('cursor-dot');
       let mouseX = 0, mouseY = 0, dotX = 0, dotY = 0;
-      window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
-      function animateDot() { dotX += (mouseX - dotX) * 0.2; dotY += (mouseY - dotY) * 0.2; dot.style.left = dotX + 'px'; dot.style.top = dotY + 'px'; requestAnimationFrame(animateDot); }
+      
+      window.addEventListener('mousemove', (e) => { 
+        mouseX = e.clientX; 
+        mouseY = e.clientY; 
+        cursor.style.left = mouseX + 'px'; 
+        cursor.style.top = mouseY + 'px'; 
+      });
+
+      function animateDot() { 
+        dotX += (mouseX - dotX) * 0.2; 
+        dotY += (mouseY - dotY) * 0.2; 
+        dot.style.left = dotX + 'px'; 
+        dot.style.top = dotY + 'px'; 
+        requestAnimationFrame(animateDot); 
+      }
       animateDot();
+
       document.querySelectorAll('.hoverable, button, input, textarea, a, label, canvas').forEach(el => {
         el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
         el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
       });
 
+      // Навигация
       const navbar = document.getElementById('navbar');
-      window.addEventListener('scroll', () => { if(window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled'); });
+      window.addEventListener('scroll', () => { 
+        if(window.scrollY > 50) navbar.classList.add('scrolled'); 
+        else navbar.classList.remove('scrolled'); 
+      });
 
+      // Canvas Снег
       const canvasBg = document.getElementById('bg-canvas');
       const ctxBg = canvasBg.getContext('2d');
       let particles = [], width, height;
-      function resize() { width = window.innerWidth; height = window.innerHeight; canvasBg.width = width; canvasBg.height = height; }
-      window.addEventListener('resize', resize); resize();
-      class Particle {
-        constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.size = Math.random() * 2 + 0.5; this.speedY = Math.random() * 1 + 0.5; this.speedX = Math.random() * 0.5 - 0.25; this.opacity = Math.random() * 0.5 + 0.1; }
-        update() { this.y += this.speedY; this.x += this.speedX; let dx = mouseX - this.x, dy = mouseY - this.y; if (Math.sqrt(dx * dx + dy * dy) < 100) { this.x -= dx * 0.05; this.y -= dy * 0.05; } if (this.y > height) { this.y = -10; this.x = Math.random() * width; } if (this.x > width) this.x = 0; else if (this.x < 0) this.x = width; }
-        draw() { ctxBg.beginPath(); ctxBg.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctxBg.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; ctxBg.fill(); }
+
+      function resize() { 
+        width = window.innerWidth; 
+        height = window.innerHeight; 
+        canvasBg.width = width; 
+        canvasBg.height = height; 
       }
+      window.addEventListener('resize', resize); resize();
+
+      class Particle {
+        constructor() { 
+          this.x = Math.random() * width; 
+          this.y = Math.random() * height; 
+          this.size = Math.random() * 2 + 0.5; 
+          this.speedY = Math.random() * 1 + 0.5; 
+          this.speedX = Math.random() * 0.5 - 0.25; 
+          this.opacity = Math.random() * 0.5 + 0.1; 
+        }
+        update() { 
+          this.y += this.speedY; 
+          this.x += this.speedX; 
+          let dx = mouseX - this.x, dy = mouseY - this.y; 
+          if (Math.sqrt(dx * dx + dy * dy) < 100) { this.x -= dx * 0.05; this.y -= dy * 0.05; } 
+          if (this.y > height) { this.y = -10; this.x = Math.random() * width; } 
+          if (this.x > width) this.x = 0; else if (this.x < 0) this.x = width; 
+        }
+        draw() { 
+          ctxBg.beginPath(); 
+          ctxBg.arc(this.x, this.y, this.size, 0, Math.PI * 2); 
+          ctxBg.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; 
+          ctxBg.fill(); 
+        }
+      }
+
       for(let i = 0; i < 100; i++) particles.push(new Particle());
-      function animateParticles() { ctxBg.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
+      function animateParticles() { 
+        ctxBg.clearRect(0, 0, width, height); 
+        particles.forEach(p => { p.update(); p.draw(); }); 
+        requestAnimationFrame(animateParticles); 
+      }
       animateParticles();
 
+      // Canvas Подпись
       const signaturePad = document.getElementById('signature-pad');
       const ctxPad = signaturePad.getContext('2d');
-      let isDrawing = false, isSigned = false;
+      let isDrawing = false;
+      let isSigned = false;
 
-      ctxPad.lineWidth = 3; ctxPad.strokeStyle = '#0f172a'; ctxPad.lineCap = 'round'; ctxPad.lineJoin = 'round';
+      ctxPad.lineWidth = 3;
+      ctxPad.strokeStyle = '#0f172a'; // Чернила
+      ctxPad.lineCap = 'round';
+      ctxPad.lineJoin = 'round';
+
       function getPointerPos(e) {
         const rect = signaturePad.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: (clientX - rect.left) * (signaturePad.width / rect.width), y: (clientY - rect.top) * (signaturePad.height / rect.height) };
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { 
+          x: (clientX - rect.left) * (signaturePad.width / rect.width), 
+          y: (clientY - rect.top) * (signaturePad.height / rect.height) 
+        };
       }
       function startDraw(e) { e.preventDefault(); isDrawing = true; isSigned = true; const pos = getPointerPos(e); ctxPad.beginPath(); ctxPad.moveTo(pos.x, pos.y); }
       function draw(e) { if (!isDrawing) return; e.preventDefault(); const pos = getPointerPos(e); ctxPad.lineTo(pos.x, pos.y); ctxPad.stroke(); }
       function endDraw() { isDrawing = false; ctxPad.beginPath(); }
+
       signaturePad.addEventListener('mousedown', startDraw); signaturePad.addEventListener('mousemove', draw); signaturePad.addEventListener('mouseup', endDraw); signaturePad.addEventListener('mouseout', endDraw);
       signaturePad.addEventListener('touchstart', startDraw, {passive: false}); signaturePad.addEventListener('touchmove', draw, {passive: false}); signaturePad.addEventListener('touchend', endDraw);
+
       document.getElementById('clear-signature').addEventListener('click', () => { ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false; });
 
-      const dateInput = document.getElementById('date'); dateInput.max = new Date().toISOString().split('T')[0];
+      // ОГРАНИЧЕНИЕ ДАТЫ ДО СЕГОДНЯШНЕГО ДНЯ (исправлен баг с часовым поясом)
+      const dateInput = document.getElementById('date');
+      const today = new Date();
+      const offset = today.getTimezoneOffset() * 60000;
+      const localISOTime = (new Date(today - offset)).toISOString().split('T')[0];
+      dateInput.max = localISOTime;
 
+      // Навигация по шагам
       window.nextStep = function(currentStep) {
-        if (currentStep === 1) { const inputs = ['nickname', 'date', 'contact', 'time'].map(id => document.getElementById(id)); for(let el of inputs) { if(!el.checkValidity()) { el.reportValidity(); return; } } }
-        if (currentStep === 2 && !document.querySelector('[name="job"]:checked')) { alert("Необходимо выбрать основную специализацию!"); return; }
+        if (currentStep === 1) {
+          const inputs = ['nickname', 'date', 'contact', 'time'].map(id => document.getElementById(id));
+          for(let el of inputs) { if(!el.checkValidity()) { el.reportValidity(); return; } }
+        }
+        if (currentStep === 2 && !document.querySelector('[name="job"]:checked')) { 
+          alert("Необходимо выбрать основную специализацию!"); return; 
+        }
         if (currentStep === 3) {
-          const about = document.getElementById('about'); if(!about.checkValidity()) { about.reportValidity(); return; }
+          const about = document.getElementById('about');
+          if(!about.checkValidity()) { about.reportValidity(); return; }
+          
           document.getElementById('doc-nickname').textContent = document.getElementById('nickname').value;
           document.getElementById('doc-job').textContent = document.querySelector('[name="job"]:checked').value;
           const extraJobs = Array.from(document.querySelectorAll('[name="extraJob"]:checked')).map(el => el.value);
@@ -535,29 +593,53 @@
           document.getElementById('doc-contact').textContent = document.getElementById('contact').value;
           document.getElementById('doc-about').textContent = document.getElementById('about').value;
         }
-        document.getElementById(`step-${currentStep}`).classList.remove('active'); document.getElementById(`step-${currentStep}`).classList.add('prev');
-        document.getElementById(`step-${currentStep + 1}`).classList.remove('prev'); document.getElementById(`step-${currentStep + 1}`).classList.add('active');
-        document.getElementById(`indicator-${currentStep}`).classList.add('completed'); document.getElementById(`indicator-${currentStep + 1}`).classList.add('active');
+
+        document.getElementById(`step-${currentStep}`).classList.remove('active'); 
+        document.getElementById(`step-${currentStep}`).classList.add('prev');
+        document.getElementById(`step-${currentStep + 1}`).classList.remove('prev'); 
+        document.getElementById(`step-${currentStep + 1}`).classList.add('active');
+        
+        document.getElementById(`indicator-${currentStep}`).classList.add('completed'); 
+        document.getElementById(`indicator-${currentStep + 1}`).classList.add('active');
       };
 
       window.prevStep = function(currentStep) {
-        document.getElementById(`step-${currentStep}`).classList.remove('active'); document.getElementById(`step-${currentStep - 1}`).classList.remove('prev'); document.getElementById(`step-${currentStep - 1}`).classList.add('active');
-        document.getElementById(`indicator-${currentStep}`).classList.remove('active'); document.getElementById(`indicator-${currentStep - 1}`).classList.remove('completed');
+        document.getElementById(`step-${currentStep}`).classList.remove('active'); 
+        document.getElementById(`step-${currentStep - 1}`).classList.remove('prev'); 
+        document.getElementById(`step-${currentStep - 1}`).classList.add('active');
+        
+        document.getElementById(`indicator-${currentStep}`).classList.remove('active'); 
+        document.getElementById(`indicator-${currentStep - 1}`).classList.remove('completed');
       };
 
+      // Отправка формы на сервер Vercel
       const form = document.getElementById('frosthaven-form');
       const submitBtn = document.getElementById('submitBtn');
       const statusBox = document.getElementById('status');
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (document.getElementById('website').value !== '') return;
-        if (!isSigned) { alert("Договор недействителен без вашей подписи! Пожалуйста, распишитесь на документе."); return; }
-
-        submitBtn.disabled = true; submitBtn.innerHTML = 'Отправка...'; statusBox.className = 'status-box';
         
-        const tempCanvas = document.createElement('canvas'); tempCanvas.width = signaturePad.width; tempCanvas.height = signaturePad.height;
-        const tCtx = tempCanvas.getContext('2d'); tCtx.fillStyle = '#f3e9d2'; tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); tCtx.drawImage(signaturePad, 0, 0);
+        if (document.getElementById('website').value !== '') return; // Антиспам ботов
+        
+        if (!isSigned) {
+          alert("Договор недействителен без вашей подписи! Пожалуйста, распишитесь на документе."); 
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Отправка...';
+        statusBox.className = 'status-box';
+
+        // Генерируем картинку подписи (добавляем цвет фона "бумаги", чтобы в ТГ не было черного фона)
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = signaturePad.width;
+        tempCanvas.height = signaturePad.height;
+        const tCtx = tempCanvas.getContext('2d');
+        tCtx.fillStyle = '#f3e9d2'; // Цвет бумаги
+        tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tCtx.drawImage(signaturePad, 0, 0);
+        
         const signatureDataURL = tempCanvas.toDataURL('image/png');
 
         const data = {
@@ -572,28 +654,39 @@
         };
 
         try {
-          // ЖЕСТКО ЗАДАННАЯ ССЫЛКА НА ТВОЙ СЕРВЕР (Больше не сломается)
-          const apiUrl = 'https://frost-heaven-citywork.vercel.app/api/send-to-telegram';
-
-          const res = await fetch(apiUrl, {
+          // Вызываем наш бэкенд на Vercel (Относительный путь, если лежат в одном проекте)
+          const res = await fetch('/api/send-to-telegram', {
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify(data)
           });
           
-          let result;
-          try { result = await res.json(); } catch(e) { result = {}; }
+          if (!res.ok) throw new Error('Сервер временно недоступен. Попробуйте позже.');
           
-          if (!res.ok || result.ok === false) {
-             throw new Error(result.message || `Ошибка 404/405. Убедитесь, что папка "api" загружена в Vercel!`);
-          }
+          const result = await res.json();
+          if (!result.ok) throw new Error(result.message || 'Ошибка обработки.');
 
-          statusBox.className = 'status-box ok'; statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена!';
-          form.reset(); ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); isSigned = false; submitBtn.innerHTML = 'Успешно';
-          setTimeout(() => { submitBtn.disabled = false; submitBtn.innerHTML = 'Подписать и Отправить'; statusBox.style.display = 'none'; prevStep(4); prevStep(3); prevStep(2); }, 6000);
+          // Если успех
+          statusBox.className = 'status-box ok';
+          statusBox.textContent = '✔️ Договор подписан и заявка успешно доставлена в Мэрию!';
+          form.reset(); 
+          ctxPad.clearRect(0, 0, signaturePad.width, signaturePad.height); 
+          isSigned = false;
+          submitBtn.innerHTML = 'Успешно';
+          
+          // Возврат к первому шагу через время
+          setTimeout(() => {
+            submitBtn.disabled = false; 
+            submitBtn.innerHTML = 'Подписать и Отправить';
+            statusBox.style.display = 'none'; 
+            prevStep(4); prevStep(3); prevStep(2); 
+          }, 6000);
+
         } catch (err) {
-          statusBox.className = 'status-box err'; statusBox.textContent = '❌ ' + err.message;
-          submitBtn.disabled = false; submitBtn.innerHTML = 'Повторить отправку';
+          statusBox.className = 'status-box err';
+          statusBox.textContent = '❌ ' + err.message;
+          submitBtn.disabled = false; 
+          submitBtn.innerHTML = 'Повторить отправку';
         }
       });
     });
